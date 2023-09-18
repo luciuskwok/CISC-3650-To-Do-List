@@ -30,7 +30,7 @@
 		<div class="row">
 			<!-- Buttons -->
 			<div class="col-sm-3 p-3">
-				<button type="button" class="btn btn-primary m-1 w-100" data-bs-toggle="modal" data-bs-target="#editTaskModal">New Task</button>
+				<button type="button" class="btn btn-primary m-1 w-100" data-bs-toggle="modal" data-bs-target="#newTaskModal">New Task</button>
 			</div>
 			
 			<!-- Task List -->
@@ -59,18 +59,18 @@
 	</div><!-- "container" -->
 
 	<!-- "New Task" / "Edit Task" Modal -->
-	<div class="modal" id="editTaskModal" tabindex="-1">
+	<div class="modal" id="newTaskModal" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 class="modal-title" id="editTaskModalTitle">Create New Task</h4>
+					<h4 class="modal-title" id="newTaskModalTitle">Create New Task</h4>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 					<div class="container">
 						<div class="row py-2">
 							<div class="col col-12">
-								<textarea class="form-control form-control-lg" id="editTaskTitleField" rows="3" placeholder="Title"></textarea>
+								<textarea class="form-control form-control-lg" id="newTaskTitleField" rows="3" placeholder="Title"></textarea>
 							</div>
 						</div>
 						<div class="row py-2">
@@ -79,14 +79,14 @@
 							</div>
 							<div class="col col-9">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" name="dueDate" id="editTaskDueDateRadio1" checked>
-									<label class="form-check-label" for="editTaskDueDateRadio1">None</label>
+									<input class="form-check-input" type="radio" name="dueDate" id="newTaskDueDateRadio1" checked>
+									<label class="form-check-label" for="newTaskDueDateRadio1">None</label>
 								</div>
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" name="dueDate" id="editTaskDueDateRadio2">
-									<label class="form-check-label" for="editTaskDueDateRadio2">On:</label>
+									<input class="form-check-input" type="radio" name="dueDate" id="newTaskDueDateRadio2">
+									<label class="form-check-label" for="newTaskDueDateRadio2">On:</label>
 								</div>
-								<input type="date" class="form-control" id="editTaskDueDateField">
+								<input type="date" class="form-control" id="newTaskDueDateField" disabled>
 							</div>
 						</div>
 						<div class="row py-2">
