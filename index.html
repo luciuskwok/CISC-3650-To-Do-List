@@ -17,12 +17,12 @@
 			
 			<!-- Tabs -->
 			<div class="col-sm-9 p-1 bg-light">
-				<ul class="nav nav-tabs">
-					<li class="nav-item">
-						<a class="nav-link active" data-bs-toggle="tab" href="#">Tasks</a>
+				<ul class="nav nav-tabs" id="tasksTab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Tasks</button>
 					</li>
-					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" href="#">Completed</a>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-tab-pane" type="button" role="tab" aria-controls="completed-tab-pane" aria-selected="false">Completed</button>
 					</li>
 				</ul>
 			</div>
@@ -34,27 +34,55 @@
 			</div>
 			
 			<!-- Task List -->
-			<div class="col-sm-9 p-1 bg-light">
-				<div class="row">
-					<div class="container-fluid">
-						<div class="row bg-white m-1">
-							<div class="checkbox m-1">
-								<label><input type="checkbox" value=""> Task 1</label>
+			<div class="col-sm-9 p-1 bg-light" id="taskList">
+				
+				<!-- Tab content -->
+				<div class="tab-content">
+					
+					<!-- Main tab pane -->
+					<div class="tab-pane fade show active" id="main-tab-pane" role="tabpanel" aria-labelledby="main-tab" tabindex="0">
+						<div class="container-fluid">
+							<div class="row bg-white m-1">
+								<div class="checkbox m-1">
+									<label><input type="checkbox" value=""> Task 1</label>
+								</div>
+							</div>
+							<div class="row bg-white m-1">
+								<div class="checkbox m-1">
+									<label><input type="checkbox" value=""> Task 2 with a really long block of text attached to it to test wrapping and alignment.</label>
+								</div>
+							</div>
+							<div class="row bg-white m-1">
+								<div class="checkbox m-1">
+									<label><input type="checkbox" value=""> Task 3</label>
+								</div>
 							</div>
 						</div>
-						<div class="row bg-white m-1">
-							<div class="checkbox m-1">
-								<label><input type="checkbox" value=""> Task 2 with a really long block of text attached to it to test wrapping and alignment.</label>
+					</div><!-- "main-tab-pane" -->
+					
+					<!-- Completed tab pane -->
+					<div class="tab-pane fade" id="completed-tab-pane" role="tabpanel" aria-labelledby="completed-tab" tabindex="1">
+						<div class="container-fluid">
+							<div class="row bg-white m-1">
+								<div class="checkbox m-1">
+									<label><input type="checkbox" value="" checked> Completed Task 1</label>
+								</div>
+							</div>
+							<div class="row bg-white m-1">
+								<div class="checkbox m-1">
+									<label><input type="checkbox" value="" checked> Completed Task 2 with a really long block of text attached to it to test wrapping and alignment.</label>
+								</div>
+							</div>
+							<div class="row bg-white m-1">
+								<div class="checkbox m-1">
+									<label><input type="checkbox" value="" checked> Completed Task 3</label>
+								</div>
 							</div>
 						</div>
-						<div class="row bg-white m-1">
-							<div class="checkbox m-1">
-								<label><input type="checkbox" value=""> Task 3</label>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+					</div><!-- "completed-tab-pane" -->
+				</div><!-- "tab-content" -->
+			</div><!-- "completedTaskList" -->
+			
 		</div>
 	</div><!-- "container" -->
 
