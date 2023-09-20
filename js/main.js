@@ -4,6 +4,10 @@
 "use strict";
 
 // Frequently accessed elements
+const mainTasksContainer = document.getElementById('main-tasks-container');
+const mainTasksPlaceholder = document.getElementById('main-tasks-placeholder');
+const completedTasksContainer = document.getElementById('completed-tasks-container');
+const completedTasksPlaceholder = document.getElementById('completed-tasks-placeholder');
 const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
 // Convenience functions
@@ -62,19 +66,8 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 // Testing: adding fake tasks via JS
 
 // Hide the placeholder if there are any items in the list
-const mainTasksPlaceholder = document.getElementById('main-tasks-placeholder');
 //mainTasksPlaceholder.hidden = true;
 
 // Get the container for the main tasks
-const mainTasksContainer = document.getElementById('main-tasks-container');
 
-// Add tasks;
-// If we were using localStorage, this is where we would read tasks from it and set up the task lists.
-{
-	let taskTitle = "This is a test title";
-	let rowDiv = document.createElement("div");
-	rowDiv.className = "row bg-white m-1";
-	rowDiv.innerHTML = "<div class='checkbox m-1'><label><input type='checkbox'> "+taskTitle+"</label></div>";
-	mainTasksContainer.appendChild(rowDiv);
-}
 
