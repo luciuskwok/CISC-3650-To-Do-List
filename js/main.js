@@ -3,6 +3,9 @@
 // Whole-script strict mode
 "use strict";
 
+// Frequently accessed elements
+const newTaskDueDateField = document.getElementById('newTaskDueDateField');
+
 // Convenience functions
 function clearNewTaskFields() {
 	// Clear title
@@ -14,7 +17,6 @@ function clearNewTaskFields() {
 }
 
 // ---- Main Script ----
-const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
 // -- Add event listeners --
 
@@ -41,17 +43,18 @@ document.getElementById('newTaskCancel').addEventListener('click', ({target}) =>
 // New Task: OK button ("New Task")
 document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	// Get title from newTaskTitleField
-	var taskTitle = document.getElementById('newTaskTitleField').value;
+	let taskTitle = document.getElementById('newTaskTitleField').value;
 
 	// TODO: Future: support due date and color
 
 	// Add a new row for the task
-	var rowDiv = document.createElement("div");
+	let rowDiv = document.createElement("div");
 	rowDiv.className = "row bg-white m-1";
 	rowDiv.innerHTML = "<div class='checkbox m-1'><label><input type='checkbox'> "+taskTitle+"</label></div>";
 	mainTasksContainer.appendChild(rowDiv);
 
-	clearNewTaskFields();
+	bootstrap.Modal.getInstance(document.getElementById('newTaskModal')).hide();
+	clearNewTaskFields();	
 });
 
 // -- Set up Tasks list --
@@ -68,8 +71,8 @@ const mainTasksContainer = document.getElementById('main-tasks-container');
 // Add tasks;
 // If we were using localStorage, this is where we would read tasks from it and set up the task lists.
 {
-	var taskTitle = "This is a test title";
-	var rowDiv = document.createElement("div");
+	let taskTitle = "This is a test title";
+	let rowDiv = document.createElement("div");
 	rowDiv.className = "row bg-white m-1";
 	rowDiv.innerHTML = "<div class='checkbox m-1'><label><input type='checkbox'> "+taskTitle+"</label></div>";
 	mainTasksContainer.appendChild(rowDiv);
