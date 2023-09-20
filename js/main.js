@@ -3,6 +3,10 @@
 // Whole-script strict mode
 "use strict";
 
+// Globals
+var numMainTasks = 0;
+var numCompletedTasks = 0;
+
 // Frequently accessed elements
 const mainTasksContainer = document.getElementById('main-tasks-container');
 const mainTasksPlaceholder = document.getElementById('main-tasks-placeholder');
@@ -18,6 +22,19 @@ function clearNewTaskFields() {
 	document.getElementById('newTaskDueDateRadio1').checked = true;
 	newTaskDueDateField.disabled = true;
 	// Reset color selection (future)	
+}
+
+function addNewTask(title, dueDate, color) {
+	numMainTasks++;
+	
+	// Add a new row for the task
+	let rowDiv = document.createElement("div");
+	rowDiv.className = "row bg-white m-1";
+	rowDiv.innerHTML = "<div class='checkbox m-1'><label><input type='checkbox'> "+title+"</label></div>";
+	mainTasksContainer.appendChild(rowDiv);
+	
+	// Hide placeholder
+	mainTasksPlaceholder.hidden = true;
 }
 
 // ---- Main Script ----
@@ -52,22 +69,11 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	// TODO: Future: support due date and color
 
 	// Add a new row for the task
-	let rowDiv = document.createElement("div");
-	rowDiv.className = "row bg-white m-1";
-	rowDiv.innerHTML = "<div class='checkbox m-1'><label><input type='checkbox'> "+taskTitle+"</label></div>";
-	mainTasksContainer.appendChild(rowDiv);
-
+	addNewTask(taskTitle);
+	
+	// Dismiss and clear modal
 	bootstrap.Modal.getInstance(document.getElementById('newTaskModal')).hide();
 	clearNewTaskFields();	
 });
-
-// -- Set up Tasks list --
-
-// Testing: adding fake tasks via JS
-
-// Hide the placeholder if there are any items in the list
-//mainTasksPlaceholder.hidden = true;
-
-// Get the container for the main tasks
 
 
