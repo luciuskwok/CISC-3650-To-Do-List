@@ -57,6 +57,8 @@ function rowDivWithTask(task, taskIdentifier) {
 	titleDiv.appendChild(document.createTextNode(task.title));
 	rowDiv.appendChild(titleDiv);
 	
+	// TODO: Add event handlers for when task is checked off
+	
 	return rowDiv;
 }
 
@@ -143,11 +145,10 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 
 // Main script
 
-// Testing: add some elements
-mainTasks.push(new Task("Test task 1", null, null));
-mainTasks.push(new Task("Test task 2 with a longer name", null, null));
-mainTasks.push(new Task("Test task 3", null, null));
+// Assignment says to "Add a list of tasks", so this adds a list of sample tasks.
+mainTasks.push(new Task("Welcome to your to-do list!", null, null));
+mainTasks.push(new Task("These are sample tasks to show you how it works", null, null));
+mainTasks.push(new Task("Tap on the checkboxes on the left side to complete these tasks", null, null));
+mainTasks.push(new Task("Press the New Task button to add your own tasks", null, null));
 updateMainTaskList();
 
-mainTasks.push(new Task("4th task for testing update", null, null));
-updateMainTaskList();
