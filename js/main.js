@@ -30,8 +30,8 @@ const completedTasksPlaceholder = document.getElementById('completed-tasks-place
 const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
 // CSS constants
-const normalTaskClassName = "row m-1 bg-white";
-const selectedTaskClassName = "row m-1 bg-info"
+const normalTaskClassName = "row my-1 rounded bg-white";
+const selectedTaskClassName = "row my-1 rounded bg-info"
 
 // Clear all the input fields in the "New Task" modal
 function clearNewTaskFields() {
@@ -46,8 +46,26 @@ function clearNewTaskFields() {
 // Deselect all tasks
 function deselect() {
 	selectedTasks.clear();
+}
 
-	// TODO: go through all task divs and change their color to deselected state
+// Update the background color of rows to indicate selection state
+function updateRowSelectionState() {
+	// Main tasks
+	for (const row of mainTasksContainer.children) {
+		let selected = false;
+		for (const task of selectedTasks) {
+			//console.log("row.id == "+row.id+"; task.identifier == "+task.identifier);
+			if (row.id === "task_"+task.identifier+"_row") {
+				selected = true;
+				break;
+			}
+		}
+		if (selected) {
+			row.className = selectedTaskClassName;
+		} else {
+			row.className = normalTaskClassName;
+		}
+	}
 }
 
 // Show "Edit Task" modal
@@ -69,30 +87,27 @@ function rowDivWithTask(task) {
 	
 	let checkboxInput = document.createElement("input");
 	checkboxInput.type = "checkbox";
-	rowDiv.id = rowIdentifier+"_checkbox";
+	checkboxInput.id = rowIdentifier+"_checkbox";
 	checkboxDiv.appendChild(checkboxInput);
 	
 	let titleDiv = document.createElement("div");
-	titleDiv.className = "col m-0 user-select-none";
+	titleDiv.className = "col m-0 py-1 user-select-none";
 	titleDiv.id = rowIdentifier+"_title";
 	titleDiv.appendChild(document.createTextNode(task.title));
 	rowDiv.appendChild(titleDiv);
 	
 	// Add event handler so that clicking on a row makes it selected
 	titleDiv.addEventListener('click', (event) => {
-		// TODO: allow multiple selection with shift, ctrl, or command keys
-		if (event.shiftKey) {
-			// Skip deselection
-		}
-
 		// Deselect
+		// TODO: allow multiple selection with shift, ctrl, or command keys
+		//if (event.shiftKey) ...
 		deselect();
 
 		// Select this element
 		selectedTasks.add(task);
 
 		// Visually indicate selection
-		rowDiv.className = selectedTaskClassName;
+		updateRowSelectionState();
 	});
 	
 	// Add event handler for double-click to edit task
