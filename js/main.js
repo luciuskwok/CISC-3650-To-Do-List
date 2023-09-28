@@ -7,6 +7,7 @@
 var mainTasks = new Array();
 var completedTasks = new Array();
 var deletedTasks = new Array();
+var selectedTasks = new Set();
 
 // Task class
 class Task {
@@ -28,6 +29,10 @@ const completedTasksContainer = document.getElementById('completed-tasks-contain
 const completedTasksPlaceholder = document.getElementById('completed-tasks-placeholder');
 const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
+// CSS constants
+const normalTaskClassName = "row m-1 bg-white";
+const selectedTaskClassName = "row m-1 bg-info"
+
 // Clear all the input fields in the "New Task" modal
 function clearNewTaskFields() {
 	// Clear title
@@ -38,12 +43,24 @@ function clearNewTaskFields() {
 	// Reset color selection (future)	
 }
 
+// Deselect all tasks
+function deselect() {
+	selectedTasks.clear();
+
+	// TODO: go through all task divs and change their color to deselected state
+}
+
+// Show "Edit Task" modal
+function showEditTaskModal(task) {
+	// TODO: implement this
+}
+
 // Create a <div> for the task, to be inserted into the DOM
 function rowDivWithTask(task) {
 	let rowIdentifier = "task_"+task.identifier;
 	// Add a new row for the task
 	let rowDiv = document.createElement("div");
-	rowDiv.className = "row bg-white m-1";
+	rowDiv.className = normalTaskClassName;
 	rowDiv.id = rowIdentifier+"_row";
 	
 	let checkboxDiv = document.createElement("div");
@@ -56,16 +73,39 @@ function rowDivWithTask(task) {
 	checkboxDiv.appendChild(checkboxInput);
 	
 	let titleDiv = document.createElement("div");
-	titleDiv.className = "col m-0";
+	titleDiv.className = "col m-0 user-select-none";
 	titleDiv.id = rowIdentifier+"_title";
 	titleDiv.appendChild(document.createTextNode(task.title));
 	rowDiv.appendChild(titleDiv);
 	
-	// TODO: add event handler so that clicking on a row makes it selected
+	// Add event handler so that clicking on a row makes it selected
+	titleDiv.addEventListener('click', (event) => {
+		// TODO: allow multiple selection with shift, ctrl, or command keys
+		if (event.shiftKey) {
+			// Skip deselection
+		}
+
+		// Deselect
+		deselect();
+
+		// Select this element
+		selectedTasks.add(task);
+
+		// Visually indicate selection
+		rowDiv.className = selectedTaskClassName;
+	});
 	
-	// TODO: add event handler for double-click to edit task
+	// Add event handler for double-click to edit task
+	titleDiv.addEventListener('dblclick', (event) => {
+		showEditTaskModal(task);
+	});
 	
-	// TODO: Add event handlers for when task is checked off
+	// Add event handlers for when task is checked off, show an animation and 
+	// move the task to the completed list if it was on the main list, or vice-versa.
+	checkboxInput.addEventListener('click', (event) => {
+		alert("checked off");
+		// TODO: add code to implement this
+	});
 	
 	return rowDiv;
 }
@@ -170,7 +210,8 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 // Assignment says to "Add a list of tasks", so this adds a list of sample tasks.
 mainTasks.push(new Task("Welcome to your to-do list!", null, null));
 mainTasks.push(new Task("These are sample tasks to show you how this task list works", null, null));
-mainTasks.push(new Task("Tap on the checkbox next to a task to complete it", null, null));
-mainTasks.push(new Task("Press the New Task button to add your own tasks", null, null));
+mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null));
+mainTasks.push(new Task("Double click on the task to edit it", null, null));
+mainTasks.push(new Task("Press \"New Task\" to add your own tasks", null, null));
 updateMainTaskList();
 
