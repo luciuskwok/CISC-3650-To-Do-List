@@ -252,21 +252,30 @@ function showEditTaskModal(task) {
 	// TODO: implement this
 }
 
+// Delete a task
+function deleteTask(task) {
+	// Filter out task in main task list
+	mainTasks = mainTasks.filter(aTask => (aTask !== task));
+	completedTasks = completedTasks.filter(aTask => (aTask !== task));
+}
 
 /* !- Body event listeners */
 // Add click event listener so that clicks here deselect rows
 document.addEventListener('click', event => {
 	deselect();
 	updateSelection();
-	//console.log("Background clicked");
 });
 
 // Add keydown event listener for key shortcuts
 document.addEventListener('keydown', event => {
 	if (event.key === "Delete" || event.key === "Backspace") {
-		deleteSelectedTask();
+		for (const task of selectedTasks) {
+			deleteTask(task);
+		}
+		deselect();
+		updateMainTaskList();
+		updateCompletedTaskList();
 	}
-	console.log("keydown: "+event.key);
 });
 
 /* !- Main script */
