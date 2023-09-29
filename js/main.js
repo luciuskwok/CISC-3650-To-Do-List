@@ -468,19 +468,16 @@ document.addEventListener('keydown', event => {
 		switch (event.key) {
 			case "Delete": case "Backspace":
 				// Delete Task
-				//console.log("Delete Task");
 				deleteSelectedTasks();
 				event.stopPropagation();		
 				break;
 			case "N": case "n":
 				// New Task
-				//console.log("New Task");
 				showNewTaskModal();
 				event.stopPropagation();
 				break;
 			case "Return": case "Enter":
 				// Edit Task
-				//console.log("Edit Task");
 				if (selectedTasks.size > 0) {
 					showEditTaskModal(selectedTasks.values().next().value);
 				}
