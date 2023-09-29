@@ -97,15 +97,35 @@ class Task {
 		if (this.checkedOff) {
 			// Show animation crossing off the item
 			const titleSpan = document.getElementById("task_"+this.identifier+"_title");
-			console.log("Title span: "+titleSpan);
 			
 			// Create an array of chars from the original text
-			let s = titleSpan.innerText.split('');
+			let original = titleSpan.innerText.split('');
 			
-			// Create versions of string with different numbers of 
+			// Create versions of string with different portion
+			let versions = new Array();
 			
-			// Add strikethrough character to each char
-			titleSpan.innerText = s.map(char => char + '\u0336').join('');
+			const frames = 8;
+			for (let i=1; i<=frames; i++) {
+				let n = original.length * i / frames;
+				
+				let s = new Array();
+				for (let j=0; j<original.length; j++) {
+					s.push(original[j]);
+					if (j < n) {
+						s.push('\u0336');
+					}
+				}
+				versions.push(s.join(''));
+			}
+			
+			// Put up the first frame of the animation
+			titleSpan.innerText = versions[0];
+			
+			for (let i=1; i<frames; i++) {
+				setTimeout(() => {
+					titleSpan.innerText = versions[i];
+				}, 400*i/frames);
+			}
 		}
 		
 		// Pause 0.5 seconds, then move task to other list
