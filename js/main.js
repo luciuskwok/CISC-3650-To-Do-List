@@ -110,11 +110,11 @@ class Task {
 		if (selected) {
 			return base+selName;
 		} else if (this.color === "4") {
-			return base+"bg-success";
+			return base+"bg-success text-white"; // Green
 		} else if (this.color === "3") {
-			return base+"bg-warning";
+			return base+"bg-warning"; // Yellow
 		} else if (this.color === "2") {
-			return base+"bg-danger";
+			return base+"bg-danger text-white"; // Red
 		}
 		return base+"bg-white";
 	}
