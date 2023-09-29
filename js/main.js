@@ -14,6 +14,74 @@ class Task {
 		this.identifier = Task.taskIdentifier;
 		Task.taskIdentifier++;
 	}
+	
+	// Create a <div> for the task, to be inserted into the DOM
+	rowDiv() {
+		let rowIdentifier = "task_"+this.identifier;
+		// Add a new row for the task
+		let rowDiv = document.createElement("div");
+		rowDiv.className = normalTaskClassName;
+		rowDiv.id = rowIdentifier+"_row";
+		
+		let checkboxDiv = document.createElement("div");
+		checkboxDiv.className = "col-1 checkbox m-1 ";
+		rowDiv.appendChild(checkboxDiv);
+		
+		let checkboxInput = document.createElement("input");
+		checkboxInput.type = "checkbox";
+		checkboxInput.id = rowIdentifier+"_checkbox";
+		checkboxDiv.appendChild(checkboxInput);
+		
+		let titleDiv = document.createElement("div");
+		titleDiv.className = "col m-0 py-1 user-select-none";
+		titleDiv.id = rowIdentifier+"_title";
+		titleDiv.appendChild(document.createTextNode(this.title));
+		rowDiv.appendChild(titleDiv);
+		
+		// Add event handler so that clicking on a row makes it selected
+		titleDiv.addEventListener('click', (event) => {
+			// Deselect
+			// TODO: allow multiple selection with shift, ctrl, or command keys
+			//if (event.shiftKey) ...
+			deselect();
+	
+			// Select this element
+			selectedTasks.add(this);
+	
+			// Visually indicate selection
+			updateSelection();
+			
+			// Prevent event propagation so that body event handler does not deselect rows.
+			event.stopPropagation();
+		});
+		
+		// Add event handler for double-click to edit task
+		titleDiv.addEventListener('dblclick', (event) => {
+			showEditTaskModal(this);
+			
+			// Prevent event propagation so that body event handler does not deselect rows.
+			event.stopPropagation();
+		});
+		
+		// Add event handlers for when task is checked off, show an animation and 
+		// move the task to the completed list if it was on the main list, or vice-versa.
+		checkboxInput.addEventListener('click', (event) => {
+			console.log("Checkbox: "+event.target.checked);
+			task.checkedOff = event.target.checked;
+			
+			// Allow body event handler to deselect rows.
+		});
+		
+		return rowDiv;
+	}
+
+	// Delete a task from all lists
+	deleteFromAllLists() {
+		// Filter out task in each list
+		mainTasks = mainTasks.filter(x => (x !== this));
+		completedTasks = completedTasks.filter(x => (x !== this));
+	}
+
 }
 
 // Globals
@@ -69,6 +137,11 @@ function updateSelectionWithContainer(container) {
 
 /* !- == Updating Rows == */
 
+function updateAllTaskLists() {
+	updateMainTaskList();
+	updateCompletedTaskList();
+}
+
 function updateMainTaskList() {
 	// If there are no tasks in the main list, show the placeholder, otherwise show each task.
 	// Note: this will result in a visible flicker if updating the entire list, so try not to use it when inserting or removing just one element.
@@ -83,8 +156,7 @@ function updateMainTaskList() {
 		mainTasksPlaceholder.hidden = true;
 		let index = 0;
 		for (const task of mainTasks) {
-			let rowDiv = rowDivWithTask(task, "task_"+index);
-			mainTasksContainer.appendChild(rowDiv);
+			mainTasksContainer.appendChild(task.rowDiv());
 			index++;
 		}
 	}
@@ -100,8 +172,7 @@ function updateCompletedTaskList() {
 		completedTasksPlaceholder.hidden = true;
 		let index = 0;
 		for (const task of completedTasks) {
-			let rowDiv = rowDivWithTask(task, "task_"+index);
-			completedTasksContainer.appendChild(rowDiv);
+			completedTasksContainer.appendChild(task.rowDiv());
 			index++;
 		}
 	}
@@ -118,67 +189,6 @@ function removeNonPlaceholderRows(container) {
 	for (const child of childrenToRemove) {
 		container.removeChild(child);
 	}
-}
-
-// Create a <div> for the task, to be inserted into the DOM
-function rowDivWithTask(task) {
-	let rowIdentifier = "task_"+task.identifier;
-	// Add a new row for the task
-	let rowDiv = document.createElement("div");
-	rowDiv.className = normalTaskClassName;
-	rowDiv.id = rowIdentifier+"_row";
-	
-	let checkboxDiv = document.createElement("div");
-	checkboxDiv.className = "col-1 checkbox m-1 ";
-	rowDiv.appendChild(checkboxDiv);
-	
-	let checkboxInput = document.createElement("input");
-	checkboxInput.type = "checkbox";
-	checkboxInput.id = rowIdentifier+"_checkbox";
-	checkboxDiv.appendChild(checkboxInput);
-	
-	let titleDiv = document.createElement("div");
-	titleDiv.className = "col m-0 py-1 user-select-none";
-	titleDiv.id = rowIdentifier+"_title";
-	titleDiv.appendChild(document.createTextNode(task.title));
-	rowDiv.appendChild(titleDiv);
-	
-	// Add event handler so that clicking on a row makes it selected
-	titleDiv.addEventListener('click', (event) => {
-		// Deselect
-		// TODO: allow multiple selection with shift, ctrl, or command keys
-		//if (event.shiftKey) ...
-		deselect();
-
-		// Select this element
-		selectedTasks.add(task);
-
-		// Visually indicate selection
-		updateSelection();
-		
-		// Prevent event propagation so that body event handler does not deselect rows.
-		event.stopPropagation();
-	});
-	
-	// Add event handler for double-click to edit task
-	titleDiv.addEventListener('dblclick', (event) => {
-		showEditTaskModal(task);
-		
-		// Prevent event propagation so that body event handler does not deselect rows.
-		event.stopPropagation();
-	});
-	
-	// Add event handlers for when task is checked off, show an animation and 
-	// move the task to the completed list if it was on the main list, or vice-versa.
-	checkboxInput.addEventListener('click', (event) => {
-		alert("checked off");
-		// TODO: add code to implement this
-		
-		// Prevent event propagation so that body event handler does not deselect rows.
-		event.stopPropagation();
-	});
-	
-	return rowDiv;
 }
 
 /* !- == New Task == */
@@ -251,20 +261,56 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 // Show "Edit Task" modal
 function showEditTaskModal(task) {
 	taskBeingEdited = task;
-	// Fill out form fields with data
 	
-	// TODO: implement this
+	// Fill out form fields with data
+	let titleField = document.getElementById('editTaskTitleField');
+	titleField.value = task.title;
+	
+	// TODO: update the Due Date and Color in Edit Task modal
+	
 	// Create and show the modal
 	let editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
 	editModal.show();
 }
 
-// Delete a task
-function deleteTask(task) {
-	// Filter out task in main task list
-	mainTasks = mainTasks.filter(aTask => (aTask !== task));
-	completedTasks = completedTasks.filter(aTask => (aTask !== task));
+// Delete selected tasks
+function deleteSelectedTasks() {
+	for (const task of selectedTasks) {
+		task.deleteFromAllLists();
+	}
+	deselect();
+	updateMainTaskList();
+	updateCompletedTaskList();
 }
+
+// Edit Task: Delete button
+document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
+	taskBeingEdited.deleteFromAllLists();
+	taskBeingEdited = null;
+	
+	updateAllTaskLists();
+	// Allow event propagation so that body event handler deselects rows.
+});
+
+// Edit Task: Cancel button
+document.getElementById('editTaskCancel').addEventListener('click', ({target}) => {
+	// Prevent event propagation so that body event handler does not deselect rows.
+	event.stopPropagation();
+});
+
+// Edit Task: OK button
+document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
+	// Update task with edited title
+	taskBeingEdited.title = document.getElementById('editTaskTitleField').value;
+
+	// TODO: Future: support due date and color
+
+	// Deselect and update
+	updateAllTaskLists();
+	
+	// Dismiss modal
+	bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
+});
 
 /* !- Body event listeners */
 // Add click event listener so that clicks here deselect rows
@@ -275,13 +321,20 @@ document.addEventListener('click', event => {
 
 // Add keydown event listener for key shortcuts
 document.addEventListener('keydown', event => {
-	if (event.key === "Delete" || event.key === "Backspace") {
-		for (const task of selectedTasks) {
-			deleteTask(task);
-		}
-		deselect();
-		updateMainTaskList();
-		updateCompletedTaskList();
+	// TODO: ignore keydown events if a modal is active
+	
+	switch (event.key) {
+		case "Delete": case "Backspace":
+			deleteSelectedTasks();
+			break;
+		case "N": case "n":
+			// TODO: show New Task dialog
+			console.log("New Task");
+			break;
+		case "Return": case "Enter":
+			// TODO: show Edit Task dialog if a task is selected
+			console.log("Edit Task");
+			break;
 	}
 });
 
