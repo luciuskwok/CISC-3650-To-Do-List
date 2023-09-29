@@ -17,26 +17,27 @@ class Task {
 	
 	// Create a <div> for the task, to be inserted into the DOM
 	rowDiv() {
-		let rowIdentifier = "task_"+this.identifier;
+		const rowIdentifier = "task_"+this.identifier;
 		// Add a new row for the task
-		let rowDiv = document.createElement("div");
+		const rowDiv = document.createElement("div");
 		rowDiv.className = this.rowClassName(false);
 		rowDiv.id = rowIdentifier+"_row";
 		
-		let checkboxDiv = document.createElement("div");
+		const checkboxDiv = document.createElement("div");
 		checkboxDiv.className = "col-1 checkbox m-1 text-end";
 		rowDiv.appendChild(checkboxDiv);
 		
-		let checkboxInput = document.createElement("input");
+		const checkboxInput = document.createElement("input");
 		checkboxInput.type = "checkbox";
 		checkboxInput.id = rowIdentifier+"_checkbox";
 		checkboxInput.checked = this.checkedOff;
 		checkboxDiv.appendChild(checkboxInput);
 		
 		// Title
-		let titleDiv = document.createElement("div");
-		titleDiv.className = "col m-0 py-1 user-select-none";
-		titleDiv.id = rowIdentifier+"_title";
+		const contentDiv = document.createElement("div");
+		contentDiv.className = "col m-0 py-1 user-select-none";
+		contentDiv.id = rowIdentifier+"_content";
+		rowDiv.appendChild(contentDiv);
 		
 		// Due Date
 		// Because of the float-end, put due date before title text
@@ -44,15 +45,17 @@ class Task {
 			let dateDiv = document.createElement("span");
 			dateDiv.className = "badge rounded-pill bg-light text-dark m-1 float-end";
 			dateDiv.appendChild(document.createTextNode(this.dueDate));
-			titleDiv.appendChild(dateDiv);
+			contentDiv.appendChild(dateDiv);
 		}
 		
 		// Finish adding title
-		titleDiv.appendChild(document.createTextNode(this.title));
-		rowDiv.appendChild(titleDiv);
+		const titleSpan = document.createElement("span");
+		titleSpan.id = rowIdentifier+"_title";
+		titleSpan.appendChild(document.createTextNode(this.title));
+		contentDiv.appendChild(titleSpan);
 			
 		// Add event handler so that clicking on a row makes it selected
-		titleDiv.addEventListener('click', (event) => {
+		contentDiv.addEventListener('click', (event) => {
 			// Deselect
 			// TODO: allow multiple selection with shift, ctrl, or command keys
 			//if (event.shiftKey) ...
@@ -69,7 +72,7 @@ class Task {
 		});
 		
 		// Add event handler for double-click to edit task
-		titleDiv.addEventListener('dblclick', (event) => {
+		contentDiv.addEventListener('dblclick', (event) => {
 			showEditTaskModal(this);
 			
 			// Prevent event propagation so that body event handler does not deselect rows.
@@ -81,24 +84,40 @@ class Task {
 		checkboxInput.addEventListener('click', (event) => {
 			//console.log("Checkbox: "+event.target.checked);
 			this.checkedOff = event.target.checked;
-			
-			// TODO: animate crossing off the item
-			
-			// Pause 0.5 seconds, then move task to other list
-			setTimeout(() => {
-				this.deleteFromAllLists();
-				if (this.checkedOff) {
-					completedTasks.splice(0, 0, this);
-				} else {
-					mainTasks.splice(0, 0, this);
-				}
-				updateAllTaskLists();
-			}, 500);
-			
-			// Allow body event handler to deselect rows.
+			this.checkedDidChange();
 		});
 		
 		return rowDiv;
+	}
+	
+	// Call this when a task's checked state is changed.
+	// This triggers an animation and then moves the task to the
+	// correct list for its state
+	checkedDidChange() {
+		if (this.checkedOff) {
+			// Show animation crossing off the item
+			const titleSpan = document.getElementById("task_"+this.identifier+"_title");
+			console.log("Title span: "+titleSpan);
+			
+			// Create an array of chars from the original text
+			let s = titleSpan.innerText.split('');
+			
+			// Create versions of string with different numbers of 
+			
+			// Add strikethrough character to each char
+			titleSpan.innerText = s.map(char => char + '\u0336').join('');
+		}
+		
+		// Pause 0.5 seconds, then move task to other list
+		setTimeout(() => {
+			this.deleteFromAllLists();
+			if (this.checkedOff) {
+				completedTasks.splice(0, 0, this);
+			} else {
+				mainTasks.splice(0, 0, this);
+			}
+			updateAllTaskLists();
+		}, 500);
 	}
 	
 	// Returns the className for a row div associated with this task,
