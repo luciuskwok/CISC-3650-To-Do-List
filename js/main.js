@@ -231,6 +231,7 @@ function showNewTaskModal() {
 	let newModal = new bootstrap.Modal(document.getElementById('newTaskModal'));
 	clearNewTaskFields();
 	newModal.show();
+	document.getElementById('newTaskTitleField').focus();
 }
 
 // Clear all the input fields in the "New Task" modal
@@ -365,6 +366,8 @@ function showEditTaskModal(task) {
 	// Create and show the modal
 	let editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
 	editModal.show();
+
+	document.getElementById('editTaskTitleField').focus();
 }
 
 // Delete selected tasks
@@ -465,23 +468,24 @@ document.addEventListener('click', event => {
 // Add keydown event listener for key shortcuts
 document.addEventListener('keydown', event => {
 	if (!modalIsOpen()) {
+		event.preventDefault();
 		switch (event.key) {
 			case "Delete": case "Backspace":
 				// Delete Task
-				deleteSelectedTasks();
 				event.stopPropagation();		
+				deleteSelectedTasks();
 				break;
 			case "N": case "n":
 				// New Task
-				showNewTaskModal();
 				event.stopPropagation();
+				showNewTaskModal();
 				break;
 			case "Return": case "Enter":
 				// Edit Task
+				event.stopPropagation();
 				if (selectedTasks.size > 0) {
 					showEditTaskModal(selectedTasks.values().next().value);
 				}
-				event.stopPropagation();
 				break;
 			case " ":
 				// Toggle checkmark on task
