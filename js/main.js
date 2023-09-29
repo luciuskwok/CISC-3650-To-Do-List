@@ -195,6 +195,15 @@ function removeNonPlaceholderRows(container) {
 
 const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
+// Show "New Task" modal
+function showNewTaskModal() {
+	taskBeingEdited = null;
+	
+	// Create and show the modal
+	let newModal = new bootstrap.Modal(document.getElementById('newTaskModal'));
+	newModal.show();
+}
+
 function addNewTask(title, dueDate, color) {
 	// Add task to top of list
 	let task = new Task(title, dueDate, color);
@@ -215,6 +224,11 @@ function clearNewTaskFields() {
 
 /* ! New Task event listeners */
 
+// New Task button that opens modal
+document.getElementById('showNewTaskButton').addEventListener('click', ({target}) => {
+	showNewTaskModal();
+});
+
 // New Task: Due Date radio group
 document.getElementById('newTaskDueDateRadioGroup').addEventListener('click', ({target}) => {
 	// Handler fires on root container click;
@@ -234,7 +248,6 @@ document.getElementById('newTaskDueDateRadioGroup').addEventListener('click', ({
 
 // New Task: Cancel button
 document.getElementById('newTaskCancel').addEventListener('click', ({target}) => {
-	// Clear all fields
 	clearNewTaskFields();
 
 	// Prevent event propagation so that body event handler does not deselect rows.
@@ -315,28 +328,40 @@ document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
 /* !- Body event listeners */
 // Add click event listener so that clicks here deselect rows
 document.addEventListener('click', event => {
-	deselect();
-	updateSelection();
+	if (!modalIsOpen()) {
+		deselect();
+		updateSelection();
+	}
 });
 
 // Add keydown event listener for key shortcuts
 document.addEventListener('keydown', event => {
-	// TODO: ignore keydown events if a modal is active
-	
-	switch (event.key) {
-		case "Delete": case "Backspace":
-			deleteSelectedTasks();
-			break;
-		case "N": case "n":
-			// TODO: show New Task dialog
-			console.log("New Task");
-			break;
-		case "Return": case "Enter":
-			// TODO: show Edit Task dialog if a task is selected
-			console.log("Edit Task");
-			break;
+	if (!modalIsOpen()) {
+		switch (event.key) {
+			case "Delete": case "Backspace":
+				//console.log("Delete Task");
+				deleteSelectedTasks();				
+				break;
+			case "N": case "n":
+				//console.log("New Task");
+				showNewTaskModal();
+				break;
+			case "Return": case "Enter":
+				// TODO: show Edit Task dialog if a task is selected
+				console.log("Edit Task");
+				break;
+		}
 	}
 });
+
+function modalIsOpen() {
+	return isElementVisible('editTaskModal') || isElementVisible('newTaskModal');
+}
+
+function isElementVisible(elementId) {
+	let display = document.getElementById(elementId).style.display;
+	return display != null && display !== "" &&display !== "none";
+}
 
 /* !- Main script */
 
