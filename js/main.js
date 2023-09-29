@@ -20,7 +20,7 @@ class Task {
 		let rowIdentifier = "task_"+this.identifier;
 		// Add a new row for the task
 		let rowDiv = document.createElement("div");
-		rowDiv.className = normalTaskClassName;
+		rowDiv.className = this.rowClassName(false);
 		rowDiv.id = rowIdentifier+"_row";
 		
 		let checkboxDiv = document.createElement("div");
@@ -33,16 +33,18 @@ class Task {
 		checkboxInput.checked = this.checkedOff;
 		checkboxDiv.appendChild(checkboxInput);
 		
+		// Title
 		let titleDiv = document.createElement("div");
 		titleDiv.className = "col m-0 py-1 user-select-none";
 		titleDiv.id = rowIdentifier+"_title";
 		titleDiv.appendChild(document.createTextNode(this.title));
 		rowDiv.appendChild(titleDiv);
 		
-		// TODO: add Due Date
-		
-		// TODO: add color support
-		
+		// Due Date
+		if (this.dueDate != null) {
+			
+		}
+			
 		// Add event handler so that clicking on a row makes it selected
 		titleDiv.addEventListener('click', (event) => {
 			// Deselect
@@ -92,6 +94,24 @@ class Task {
 		
 		return rowDiv;
 	}
+	
+	// Returns the className for a row div associated with this task,
+	// which includes the background color for selection and color coding
+	rowClassName(selected) {
+		const base = "row my-1 rounded ";
+		const selName = "bg-info bg-gradient";
+		
+		if (selected) {
+			return base+selName;
+		} else if (this.color === "4") {
+			return base+"bg-success";
+		} else if (this.color === "3") {
+			return base+"bg-warning";
+		} else if (this.color === "2") {
+			return base+"bg-danger";
+		}
+		return base+"bg-white";
+	}
 
 	// Delete a task from all lists
 	deleteFromAllLists() {
@@ -112,9 +132,8 @@ var taskBeingEdited = null;
 const mainTasksContainer = document.getElementById('main-tasks-container');
 const completedTasksContainer = document.getElementById('completed-tasks-container');
 
-// CSS constants
-const normalTaskClassName = "row my-1 rounded bg-white";
-const selectedTaskClassName = "row my-1 rounded bg-info"
+/* ! - == Row Colors == */ 
+
 
 /* ! - == Selection == */ 
 
@@ -125,29 +144,19 @@ function deselect() {
 
 // Updates the selected state of all rows
 function updateSelection() {
-	updateSelectionWithContainer(mainTasksContainer);
-	updateSelectionWithContainer(completedTasksContainer);
+	updateSelectionWithContainer(mainTasks);
+	updateSelectionWithContainer(completedTasks);
 }
 
 // Updates the background color of rows to indicate selection state
-function updateSelectionWithContainer(container) {
-	// Main tasks
-	for (const row of container.children) {
-		// Ignore placeholder rows
-		if (!row.id.endsWith("placeholder")) {
-			let selected = false;
-			for (const task of selectedTasks) {
-				//console.log("row.id == "+row.id+"; task.identifier == "+task.identifier);
-				if (row.id === "task_"+task.identifier+"_row") {
-					selected = true;
-					break;
-				}
-			}
-			if (selected) {
-				row.className = selectedTaskClassName;
-			} else {
-				row.className = normalTaskClassName;
-			}
+function updateSelectionWithContainer(taskList) {
+	// For each task in the list, find the matching row div and change the class name.
+	for (const task of taskList) {
+		let rowId = "task_"+task.identifier+"_row";
+		let div = document.getElementById(rowId);
+		if (div) {
+			let taskIsSelected = selectedTasks.has(task);
+			div.className = task.rowClassName(taskIsSelected);
 		}
 	}
 }
