@@ -39,6 +39,10 @@ class Task {
 		titleDiv.appendChild(document.createTextNode(this.title));
 		rowDiv.appendChild(titleDiv);
 		
+		// TODO: add Due Date
+		
+		// TODO: add color support
+		
 		// Add event handler so that clicking on a row makes it selected
 		titleDiv.addEventListener('click', (event) => {
 			// Deselect
@@ -206,7 +210,6 @@ function removeNonPlaceholderRows(container) {
 
 /* !- == New Task == */
 
-const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
 // Show "New Task" modal
 function showNewTaskModal() {
@@ -214,7 +217,19 @@ function showNewTaskModal() {
 	
 	// Create and show the modal
 	let newModal = new bootstrap.Modal(document.getElementById('newTaskModal'));
+	clearNewTaskFields();
 	newModal.show();
+}
+
+// Clear all the input fields in the "New Task" modal
+function clearNewTaskFields() {
+	// Clear title
+	document.getElementById('newTaskTitleField').value = "";
+	// Reset due date to None
+	document.getElementById('newTaskDueCheckbox').checked = false;
+	newTaskDueDatePicker.disabled = true;
+	// Reset color selection
+	document.getElementById('newTaskColor1').checked = true;
 }
 
 function addNewTask(title, dueDate, color) {
@@ -225,16 +240,6 @@ function addNewTask(title, dueDate, color) {
 	updateMainTaskList();
 }
 
-// Clear all the input fields in the "New Task" modal
-function clearNewTaskFields() {
-	// Clear title
-	document.getElementById('newTaskTitleField').value = "";
-	// Reset due date to None
-	document.getElementById('newTaskDueDateRadio1').checked = true;
-	newTaskDueDateField.disabled = true;
-	// Reset color selection (future)	
-}
-
 /* ! New Task event listeners */
 
 // New Task button that opens modal
@@ -242,27 +247,15 @@ document.getElementById('showNewTaskButton').addEventListener('click', ({target}
 	showNewTaskModal();
 });
 
-// New Task: Due Date radio group
-document.getElementById('newTaskDueDateRadioGroup').addEventListener('click', ({target}) => {
-	// Handler fires on root container click;
-	// Enable or disable the date picker input based on which radio button
-	// is selected.
-	if (target.getAttribute('name') === 'dueDate') {
-		if (target.value === 'none') {
-			newTaskDueDateField.disabled = true;
-		} else {
-			newTaskDueDateField.disabled = false;
-		}
-	}
-
-	// Prevent event propagation so that body event handler does not deselect rows.
-	event.stopPropagation();
+// New Task: Due Date checkbox
+document.getElementById('newTaskDueCheckbox').addEventListener('click', ({target}) => {
+	// Sets date picker enabled status based on checkbox.
+	const datePicker = document.getElementById('newTaskDueDatePicker');
+	datePicker.disabled = !target.checked;
 });
 
 // New Task: Cancel button
 document.getElementById('newTaskCancel').addEventListener('click', ({target}) => {
-	clearNewTaskFields();
-
 	// Prevent event propagation so that body event handler does not deselect rows.
 	event.stopPropagation();
 });
@@ -271,15 +264,27 @@ document.getElementById('newTaskCancel').addEventListener('click', ({target}) =>
 document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	// Get title from newTaskTitleField
 	let taskTitle = document.getElementById('newTaskTitleField').value;
-
-	// TODO: Future: support due date and color
+	
+	// Due date
+	let dueDate = null;
+	if (document.getElementById('newTaskDueCheckbox').checked) {
+		dueDate = document.getElementById('newTaskDueDatePicker').value;
+	}
+	console.log("Date: "+dueDate);
+	
+	// Color
+	let selectedColor = document.querySelector("[name=newTaskColor]:checked").id;
+	let color = null;
+	if (selectedColor.length > 1) {
+		color = selectedColor.charAt(selectedColor.length-1);
+	}
+	console.log("Color: "+color);
 
 	// Add a new row for the task
-	addNewTask(taskTitle);
+	addNewTask(taskTitle, dueDate, color);
 	
 	// Dismiss and clear modal
 	bootstrap.Modal.getInstance(document.getElementById('newTaskModal')).hide();
-	clearNewTaskFields();	
 });
 
 /* !- == Edit Task == */
@@ -309,6 +314,10 @@ function deleteSelectedTasks() {
 	updateCompletedTaskList();
 }
 
+// Edit Task: Due Date radio group
+// TODO
+
+
 // Edit Task: Delete button
 document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
 	taskBeingEdited.deleteFromAllLists();
@@ -321,7 +330,7 @@ document.getElementById('editTaskDelete').addEventListener('click', ({target}) =
 // Edit Task: Cancel button
 document.getElementById('editTaskCancel').addEventListener('click', ({target}) => {
 	// Prevent event propagation so that body event handler does not deselect rows.
-	event.stopPropagation();
+	//event.stopPropagation();
 });
 
 // Edit Task: OK button
@@ -391,3 +400,4 @@ mainTasks.push(new Task("Double click on the task to edit it", null, null));
 mainTasks.push(new Task("Press \"New Task\" to add your own tasks", null, null));
 updateMainTaskList();
 
+// Check the Due Date radio group button for None

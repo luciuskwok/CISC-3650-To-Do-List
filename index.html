@@ -70,7 +70,7 @@
 					<h4 class="modal-title" id="newTaskModalTitle">Create New Task</h4>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body bg-light">
 					<div class="container">
 						<div class="row py-2">
 							<div class="col col-12">
@@ -78,26 +78,31 @@
 							</div>
 						</div>
 						<div class="row py-2">
-							<div class="col col-3 text-end">
-								<h5>Due Date</h5>
-							</div>
-							<div class="col col-9" id="newTaskDueDateRadioGroup">
+							<div class="col col-12 mx-1">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" name="dueDate" value="none" id="newTaskDueDateRadio1" checked>
-									<label class="form-check-label" for="newTaskDueDateRadio1">None</label>
+									<input class="form-check-input" type="checkbox" id="newTaskDueCheckbox" value="due">
+									<label class="form-check-label h5 pe-2" for="newTaskDueCheckbox">Due</label>
+									<input class="form-check form-check-inline" type="date" id="newTaskDueDatePicker" disabled>
 								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" name="dueDate" value="onDate" id="newTaskDueDateRadio2">
-									<label class="form-check-label" for="newTaskDueDateRadio2">On:</label>
-								</div>
-								<input type="date" class="form-control" id="newTaskDueDateField" disabled>
 							</div>
 						</div>
 						<div class="row py-2">
-							<div class="col col-3 text-end">
-								<h5>Color</h5>
+							<div class="col col-12 mx-1">
+								<span class="h5 ps-2 pe-2">Color</span>
+								<div class="btn-group" role="group" aria-label="New task color radio button group">
+									<input type="radio" class="btn-check" name="newTaskColor" id="newTaskColor1" checked>
+										<label class="btn btn-outline-dark" for="newTaskColor1">None</label>
+										
+									<input type="radio" class="btn-check" name="newTaskColor" id="newTaskColor2">
+										<label class="btn btn-outline-danger" for="newTaskColor2">Red</label>
+										
+									<input type="radio" class="btn-check" name="newTaskColor" id="newTaskColor3">
+										<label class="btn btn-outline-warning" for="newTaskColor3">Yellow</label>
+										
+									<input type="radio" class="btn-check" name="newTaskColor" id="newTaskColor4">
+										<label class="btn btn-outline-success" for="newTaskColor4">Green</label>
+								</div>
 							</div>
-							<div class="col col-9">• • • • • •</div>
 						</div>
 					</div>
 				</div>
@@ -125,26 +130,31 @@
 							</div>
 						</div>
 						<div class="row py-2">
-							<div class="col col-3 text-end">
-								<h5>Due Date</h5>
-							</div>
-							<div class="col col-9" id="editTaskDueDateRadioGroup">
+							<div class="col col-12 mx-1">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" name="dueDate" value="none" id="editTaskDueDateRadio1" checked>
-									<label class="form-check-label" for="editTaskDueDateRadio1">None</label>
+									<input class="form-check-input" type="checkbox" id="editTaskDueCheckbox" value="due">
+									<label class="form-check-label h5 pe-2" for="editTaskDueCheckbox">Due</label>
+									<input class="form-check form-check-inline" type="date" id="editTaskDueDatePicker" disabled>
 								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" name="dueDate" value="onDate" id="editTaskDueDateRadio2">
-									<label class="form-check-label" for="editTaskDueDateRadio2">On:</label>
-								</div>
-								<input type="date" class="form-control" id="editTaskDueDateField" disabled>
 							</div>
 						</div>
 						<div class="row py-2">
-							<div class="col col-3 text-end">
-								<h5>Color</h5>
+							<div class="col col-12 mx-1">
+								<span class="h5 ps-2 pe-2">Color</span>
+								<div class="btn-group" role="group" aria-label="Edit task color radio button group">
+									<input type="radio" class="btn-check" name="editTaskColor" id="editTaskColor1" checked>
+										<label class="btn btn-outline-dark" for="editTaskColor1">None</label>
+										
+									<input type="radio" class="btn-check" name="editTaskColor" id="editTaskColor2">
+										<label class="btn btn-outline-danger" for="editTaskColor2">Red</label>
+										
+									<input type="radio" class="btn-check" name="editTaskColor" id="editTaskColor3">
+										<label class="btn btn-outline-warning" for="editTaskColor3">Yellow</label>
+										
+									<input type="radio" class="btn-check" name="editTaskColor" id="editTaskColor4">
+										<label class="btn btn-outline-success" for="editTaskColor4">Green</label>
+								</div>
 							</div>
-							<div class="col col-9">• • • • • •</div>
 						</div>
 					</div>
 				</div>
