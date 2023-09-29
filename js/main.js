@@ -30,6 +30,7 @@ class Task {
 		let checkboxInput = document.createElement("input");
 		checkboxInput.type = "checkbox";
 		checkboxInput.id = rowIdentifier+"_checkbox";
+		checkboxInput.checked = this.checkedOff;
 		checkboxDiv.appendChild(checkboxInput);
 		
 		let titleDiv = document.createElement("div");
@@ -67,7 +68,29 @@ class Task {
 		// move the task to the completed list if it was on the main list, or vice-versa.
 		checkboxInput.addEventListener('click', (event) => {
 			console.log("Checkbox: "+event.target.checked);
-			task.checkedOff = event.target.checked;
+			this.checkedOff = event.target.checked;
+			
+			// TODO: animate crossing off the item
+			
+			// Pause 0.5 seconds, then move task to other list
+			let sourceList, destinationList;
+			if (mainTasks.includes(this)) {
+				sourceList = mainTasks;
+				destinationList = completedTasks;
+			} else {
+				sourceList = completedTasks;
+				destinationList = mainTasks;
+			}
+			
+			setTimeout(() => {
+				this.deleteFromAllLists();
+				if (this.checkedOff) {
+					completedTasks.splice(0, 0, this);
+				} else {
+					mainTasks.splice(0, 0, this);
+				}
+				updateAllTaskLists();
+			}, 500);
 			
 			// Allow body event handler to deselect rows.
 		});
@@ -81,7 +104,6 @@ class Task {
 		mainTasks = mainTasks.filter(x => (x !== this));
 		completedTasks = completedTasks.filter(x => (x !== this));
 	}
-
 }
 
 // Globals
