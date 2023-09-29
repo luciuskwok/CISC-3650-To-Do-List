@@ -37,16 +37,19 @@ class Task {
 		let titleDiv = document.createElement("div");
 		titleDiv.className = "col m-0 py-1 user-select-none";
 		titleDiv.id = rowIdentifier+"_title";
-		titleDiv.appendChild(document.createTextNode(this.title));
-		rowDiv.appendChild(titleDiv);
 		
 		// Due Date
+		// Because of the float-end, put due date before title text
 		if (this.dueDate != null) {
 			let dateDiv = document.createElement("span");
 			dateDiv.className = "badge rounded-pill bg-light text-dark ms-1 float-end";
 			dateDiv.appendChild(document.createTextNode(this.dueDate));
 			titleDiv.appendChild(dateDiv);
 		}
+		
+		// Finish adding title
+		titleDiv.appendChild(document.createTextNode(this.title));
+		rowDiv.appendChild(titleDiv);
 			
 		// Add event handler so that clicking on a row makes it selected
 		titleDiv.addEventListener('click', (event) => {
@@ -325,8 +328,18 @@ function showEditTaskModal(task) {
 		dueDatePicker.value = null;
 	}
 	
-	
-	// TODO: update the Due Date and Color in Edit Task modal
+	// Color
+	const colorButtonPrefix = "editTaskColor";
+	// Preselect the default "None" color
+	document.getElementById(colorButtonPrefix+"1").checked = true;
+	if (task.color != null) {
+		if (task.color.length > 0) {
+			let radioButton = document.getElementById(colorButtonPrefix+task.color);
+			if (radioButton) {
+				radioButton.checked = true;
+			}
+		}
+	}	
 	
 	// Create and show the modal
 	let editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
