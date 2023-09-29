@@ -252,7 +252,7 @@ function addNewTask(title, dueDate, color) {
 	updateMainTaskList();
 }
 
-/* ! New Task event listeners */
+/* ! __ New Task event listeners */
 
 // New Task button that opens modal
 document.getElementById('showNewTaskButton').addEventListener('click', ({target}) => {
@@ -282,7 +282,7 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	if (document.getElementById('newTaskDueCheckbox').checked) {
 		dueDate = document.getElementById('newTaskDueDatePicker').value;
 	}
-	console.log("Date: "+dueDate);
+	//console.log("Date: "+dueDate);
 	
 	// Color
 	let selectedColor = document.querySelector("[name=newTaskColor]:checked").id;
@@ -290,7 +290,7 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	if (selectedColor.length > 1) {
 		color = selectedColor.charAt(selectedColor.length-1);
 	}
-	console.log("Color: "+color);
+	//console.log("Color: "+color);
 
 	// Add a new row for the task
 	addNewTask(taskTitle, dueDate, color);
@@ -356,9 +356,14 @@ function deleteSelectedTasks() {
 	updateCompletedTaskList();
 }
 
-// Edit Task: Due Date radio group
-// TODO
+/* ! __ Edit Task event listeners */
 
+// Edit Task: Due Date checkbox
+document.getElementById('editTaskDueCheckbox').addEventListener('click', ({target}) => {
+	// Sets date picker enabled status based on checkbox.
+	const datePicker = document.getElementById('editTaskDueDatePicker');
+	datePicker.disabled = !target.checked;
+});
 
 // Edit Task: Delete button
 document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
@@ -377,10 +382,27 @@ document.getElementById('editTaskCancel').addEventListener('click', ({target}) =
 
 // Edit Task: OK button
 document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
-	// Update task with edited title
+	// Title
 	taskBeingEdited.title = document.getElementById('editTaskTitleField').value;
 
-	// TODO: Future: support due date and color
+	// Due Date
+	const checkbox = document.getElementById('editTaskDueCheckbox');
+	const datePicker = document.getElementById('editTaskDueDatePicker');
+	taskBeingEdited.dueDate = null;
+	if (checkbox.checked) {
+		if (datePicker.value) {
+			if (datePicker.value.length > 0) {
+				taskBeingEdited.dueDate = datePicker.value;
+			}
+		}
+	}
+	
+	// Color
+	let selectedColor = document.querySelector("[name=editTaskColor]:checked").id;
+	taskBeingEdited.color = null;
+	if (selectedColor.length > 1) {
+		taskBeingEdited.color = selectedColor.charAt(selectedColor.length-1);
+	}
 
 	// Deselect and update
 	updateAllTaskLists();
