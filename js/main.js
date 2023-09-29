@@ -252,28 +252,8 @@ function addNewTask(title, dueDate, color) {
 	updateMainTaskList();
 }
 
-/* ! __ New Task event listeners */
-
-// New Task button that opens modal
-document.getElementById('showNewTaskButton').addEventListener('click', ({target}) => {
-	showNewTaskModal();
-});
-
-// New Task: Due Date checkbox
-document.getElementById('newTaskDueCheckbox').addEventListener('click', ({target}) => {
-	// Sets date picker enabled status based on checkbox.
-	const datePicker = document.getElementById('newTaskDueDatePicker');
-	datePicker.disabled = !target.checked;
-});
-
-// New Task: Cancel button
-document.getElementById('newTaskCancel').addEventListener('click', ({target}) => {
-	// Prevent event propagation so that body event handler does not deselect rows.
-	event.stopPropagation();
-});
-
-// New Task: OK button ("New Task")
-document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
+// Call this when OK button or Enter key is pressed from New Task modal
+function newTaskModalOK() {
 	// Get title from newTaskTitleField
 	let taskTitle = document.getElementById('newTaskTitleField').value;
 	
@@ -297,6 +277,47 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	
 	// Dismiss and clear modal
 	bootstrap.Modal.getInstance(document.getElementById('newTaskModal')).hide();
+}
+
+/* ! __ New Task event listeners */
+
+// New Task button that opens modal
+document.getElementById('showNewTaskButton').addEventListener('click', ({target}) => {
+	showNewTaskModal();
+});
+
+// New Task: Due Date checkbox
+document.getElementById('newTaskDueCheckbox').addEventListener('click', ({target}) => {
+	// Sets date picker enabled status based on checkbox.
+	const datePicker = document.getElementById('newTaskDueDatePicker');
+	datePicker.disabled = !target.checked;
+});
+
+// New Task: Cancel button
+document.getElementById('newTaskCancel').addEventListener('click', ({target}) => {
+	// Prevent event propagation so that body event handler does not deselect rows.
+	event.stopPropagation();
+});
+
+// New Task: Change Title input field behavior so Enter key OK's the modal
+document.getElementById('newTaskTitleField').addEventListener('keydown', event => {
+	if (event.key == "Return" || event.key == "Enter") {
+		newTaskModalOK();
+		event.stopPropagation();
+	}
+});
+
+// New Task: listen for return key event even if textarea is not in focus
+document.getElementById('newTaskModal').addEventListener('keydown', event => {
+	if (event.key == "Return" || event.key == "Enter") {
+		newTaskModalOK();
+		event.stopPropagation();
+	}
+});
+
+// New Task: OK button ("New Task")
+document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
+	newTaskModalOK();
 });
 
 /* !- == Edit Task == */
@@ -356,32 +377,7 @@ function deleteSelectedTasks() {
 	updateCompletedTaskList();
 }
 
-/* ! __ Edit Task event listeners */
-
-// Edit Task: Due Date checkbox
-document.getElementById('editTaskDueCheckbox').addEventListener('click', ({target}) => {
-	// Sets date picker enabled status based on checkbox.
-	const datePicker = document.getElementById('editTaskDueDatePicker');
-	datePicker.disabled = !target.checked;
-});
-
-// Edit Task: Delete button
-document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
-	taskBeingEdited.deleteFromAllLists();
-	taskBeingEdited = null;
-	
-	updateAllTaskLists();
-	// Allow event propagation so that body event handler deselects rows.
-});
-
-// Edit Task: Cancel button
-document.getElementById('editTaskCancel').addEventListener('click', ({target}) => {
-	// Prevent event propagation so that body event handler does not deselect rows.
-	//event.stopPropagation();
-});
-
-// Edit Task: OK button
-document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
+function editTaskModalOK() {
 	// Title
 	taskBeingEdited.title = document.getElementById('editTaskTitleField').value;
 
@@ -409,6 +405,52 @@ document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
 	
 	// Dismiss modal
 	bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
+}
+
+/* ! __ Edit Task event listeners */
+
+// Edit Task: Due Date checkbox
+document.getElementById('editTaskDueCheckbox').addEventListener('click', ({target}) => {
+	// Sets date picker enabled status based on checkbox.
+	const datePicker = document.getElementById('editTaskDueDatePicker');
+	datePicker.disabled = !target.checked;
+});
+
+// Edit Task: Delete button
+document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
+	taskBeingEdited.deleteFromAllLists();
+	taskBeingEdited = null;
+	
+	updateAllTaskLists();
+	// Allow event propagation so that body event handler deselects rows.
+});
+
+// Edit Task: Cancel button
+document.getElementById('editTaskCancel').addEventListener('click', ({target}) => {
+	// Prevent event propagation so that body event handler does not deselect rows.
+	//event.stopPropagation();
+});
+
+
+// Edit Task: Change Title input field behavior so Enter key OK's the modal
+document.getElementById('editTaskTitleField').addEventListener('keydown', event => {
+	if (event.key == "Return" || event.key == "Enter") {
+		editTaskModalOK();
+		event.stopPropagation();
+	}
+});
+
+// Edit Task: listen for return key event even if textarea is not in focus
+document.getElementById('editTaskModal').addEventListener('keydown', event => {
+	if (event.key == "Return" || event.key == "Enter") {
+		editTaskModalOK();
+		event.stopPropagation();
+	}
+});
+
+// Edit Task: OK button
+document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
+	editTaskModalOK();
 });
 
 /* !- Body event listeners */
@@ -425,21 +467,28 @@ document.addEventListener('keydown', event => {
 	if (!modalIsOpen()) {
 		switch (event.key) {
 			case "Delete": case "Backspace":
+				// Delete Task
 				//console.log("Delete Task");
 				deleteSelectedTasks();
 				event.stopPropagation();		
 				break;
 			case "N": case "n":
+				// New Task
 				//console.log("New Task");
 				showNewTaskModal();
 				event.stopPropagation();
 				break;
 			case "Return": case "Enter":
+				// Edit Task
 				//console.log("Edit Task");
 				if (selectedTasks.size > 0) {
 					showEditTaskModal(selectedTasks.values().next().value);
 				}
 				event.stopPropagation();
+				break;
+			case " ":
+				// Toggle checkmark on task
+				//console.log("Spacebar pressed");
 				break;
 		}
 	}
