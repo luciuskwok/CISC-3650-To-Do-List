@@ -42,7 +42,10 @@ class Task {
 		
 		// Due Date
 		if (this.dueDate != null) {
-			
+			let dateDiv = document.createElement("span");
+			dateDiv.className = "badge rounded-pill bg-light text-dark ms-1 float-end";
+			dateDiv.appendChild(document.createTextNode(this.dueDate));
+			titleDiv.appendChild(dateDiv);
 		}
 			
 		// Add event handler so that clicking on a row makes it selected
@@ -131,9 +134,6 @@ var taskBeingEdited = null;
 // Frequently accessed elements
 const mainTasksContainer = document.getElementById('main-tasks-container');
 const completedTasksContainer = document.getElementById('completed-tasks-container');
-
-/* ! - == Row Colors == */ 
-
 
 /* ! - == Selection == */ 
 
@@ -302,9 +302,29 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 function showEditTaskModal(task) {
 	taskBeingEdited = task;
 	
-	// Fill out form fields with data
+	// Title
 	let titleField = document.getElementById('editTaskTitleField');
 	titleField.value = task.title;
+	
+	// Due Date
+	let dueCheckbox = document.getElementById('editTaskDueCheckbox');
+	let dueDatePicker = document.getElementById('editTaskDueDatePicker');
+	let hasDueDate = false;
+	if (task.dueDate != null) {
+		if (task.dueDate.length > 0) {
+			hasDueDate = true;
+		}
+	}
+	if (hasDueDate) {
+		dueCheckbox.checked = true;
+		dueDatePicker.disabled = false;
+		dueDatePicker.value = task.dueDate;
+	} else {
+		dueCheckbox.checked = false;
+		dueDatePicker.disabled = true;
+		dueDatePicker.value = null;
+	}
+	
 	
 	// TODO: update the Due Date and Color in Edit Task modal
 	
@@ -406,7 +426,7 @@ mainTasks.push(new Task("Welcome to your to-do list!", null, null));
 mainTasks.push(new Task("These are sample tasks to show you how this task list works", null, null));
 mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null));
 mainTasks.push(new Task("Double click on the task to edit it", null, null));
-mainTasks.push(new Task("Press \"New Task\" to add your own tasks", null, null));
+mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3"));
 updateMainTaskList();
 
 // Check the Due Date radio group button for None
