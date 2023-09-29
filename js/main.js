@@ -3,12 +3,6 @@
 // Whole-script strict mode
 "use strict";
 
-// Globals
-var mainTasks = new Array();
-var completedTasks = new Array();
-var deletedTasks = new Array();
-var selectedTasks = new Set();
-
 // Task class
 class Task {
 	static taskIdentifier = 1;
@@ -22,55 +16,107 @@ class Task {
 	}
 }
 
+// Globals
+var mainTasks = new Array();
+var completedTasks = new Array();
+var deletedTasks = new Array();
+var selectedTasks = new Set();
+
 // Frequently accessed elements
 const mainTasksContainer = document.getElementById('main-tasks-container');
-const mainTasksPlaceholder = document.getElementById('main-tasks-placeholder');
 const completedTasksContainer = document.getElementById('completed-tasks-container');
-const completedTasksPlaceholder = document.getElementById('completed-tasks-placeholder');
-const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
 // CSS constants
 const normalTaskClassName = "row my-1 rounded bg-white";
 const selectedTaskClassName = "row my-1 rounded bg-info"
 
-// Clear all the input fields in the "New Task" modal
-function clearNewTaskFields() {
-	// Clear title
-	document.getElementById('newTaskTitleField').value = "";
-	// Reset due date to None
-	document.getElementById('newTaskDueDateRadio1').checked = true;
-	newTaskDueDateField.disabled = true;
-	// Reset color selection (future)	
-}
+/* ! - == Selection == */ 
 
 // Deselect all tasks
 function deselect() {
 	selectedTasks.clear();
 }
 
-// Update the background color of rows to indicate selection state
-function updateRowSelectionState() {
+// Updates the selected state of all rows
+function updateSelection() {
+	updateSelectionWithContainer(mainTasksContainer);
+	updateSelectionWithContainer(completedTasksContainer);
+}
+
+// Updates the background color of rows to indicate selection state
+function updateSelectionWithContainer(container) {
 	// Main tasks
-	for (const row of mainTasksContainer.children) {
-		let selected = false;
-		for (const task of selectedTasks) {
-			//console.log("row.id == "+row.id+"; task.identifier == "+task.identifier);
-			if (row.id === "task_"+task.identifier+"_row") {
-				selected = true;
-				break;
+	for (const row of container.children) {
+		// Ignore placeholder rows
+		if (!row.id.endsWith("placeholder")) {
+			let selected = false;
+			for (const task of selectedTasks) {
+				//console.log("row.id == "+row.id+"; task.identifier == "+task.identifier);
+				if (row.id === "task_"+task.identifier+"_row") {
+					selected = true;
+					break;
+				}
 			}
-		}
-		if (selected) {
-			row.className = selectedTaskClassName;
-		} else {
-			row.className = normalTaskClassName;
+			if (selected) {
+				row.className = selectedTaskClassName;
+			} else {
+				row.className = normalTaskClassName;
+			}
 		}
 	}
 }
 
-// Show "Edit Task" modal
-function showEditTaskModal(task) {
-	// TODO: implement this
+/* !- == Updating Rows == */
+
+function updateMainTaskList() {
+	// If there are no tasks in the main list, show the placeholder, otherwise show each task.
+	// Note: this will result in a visible flicker if updating the entire list, so try not to use it when inserting or removing just one element.
+	
+	// Remove any non-placeholder rows from main tasks container
+	removeNonPlaceholderRows(mainTasksContainer);
+	
+	const mainTasksPlaceholder = document.getElementById('main-tasks-placeholder');
+	if (mainTasks.length == 0) {
+		mainTasksPlaceholder.hidden = false;
+	} else {
+		mainTasksPlaceholder.hidden = true;
+		let index = 0;
+		for (const task of mainTasks) {
+			let rowDiv = rowDivWithTask(task, "task_"+index);
+			mainTasksContainer.appendChild(rowDiv);
+			index++;
+		}
+	}
+}
+
+function updateCompletedTaskList() {
+	removeNonPlaceholderRows(completedTasksContainer);
+	
+	const completedTasksPlaceholder = document.getElementById('completed-tasks-placeholder');
+	if (completedTasks.length == 0) {
+		completedTasksPlaceholder.hidden = false;
+	} else {
+		completedTasksPlaceholder.hidden = true;
+		let index = 0;
+		for (const task of completedTasks) {
+			let rowDiv = rowDivWithTask(task, "task_"+index);
+			completedTasksContainer.appendChild(rowDiv);
+			index++;
+		}
+	}
+}
+
+function removeNonPlaceholderRows(container) {
+	// Remove any non-placeholder rows from container
+	let childrenToRemove = new Array();
+	for (const child of container.children) {
+		if (!child.id.endsWith("placeholder")) {
+			childrenToRemove.push(child);
+		}
+	}
+	for (const child of childrenToRemove) {
+		container.removeChild(child);
+	}
 }
 
 // Create a <div> for the task, to be inserted into the DOM
@@ -107,12 +153,18 @@ function rowDivWithTask(task) {
 		selectedTasks.add(task);
 
 		// Visually indicate selection
-		updateRowSelectionState();
+		updateSelection();
+		
+		// Prevent event propagation so that body event handler does not deselect rows.
+		event.stopPropagation();
 	});
 	
 	// Add event handler for double-click to edit task
 	titleDiv.addEventListener('dblclick', (event) => {
 		showEditTaskModal(task);
+		
+		// Prevent event propagation so that body event handler does not deselect rows.
+		event.stopPropagation();
 	});
 	
 	// Add event handlers for when task is checked off, show an animation and 
@@ -120,10 +172,17 @@ function rowDivWithTask(task) {
 	checkboxInput.addEventListener('click', (event) => {
 		alert("checked off");
 		// TODO: add code to implement this
+		
+		// Prevent event propagation so that body event handler does not deselect rows.
+		event.stopPropagation();
 	});
 	
 	return rowDiv;
 }
+
+/* !- == New Task == */
+
+const newTaskDueDateField = document.getElementById('newTaskDueDateField');
 
 function addNewTask(title, dueDate, color) {
 	// Add task to top of list
@@ -133,57 +192,17 @@ function addNewTask(title, dueDate, color) {
 	updateMainTaskList();
 }
 
-function removeNonPlaceholderRows(container) {
-	// Remove any non-placeholder rows from container
-	let childrenToRemove = new Array();
-	for (const child of container.children) {
-		if (!child.id.endsWith("placeholder")) {
-			childrenToRemove.push(child);
-		}
-	}
-	for (const child of childrenToRemove) {
-		container.removeChild(child);
-	}
+// Clear all the input fields in the "New Task" modal
+function clearNewTaskFields() {
+	// Clear title
+	document.getElementById('newTaskTitleField').value = "";
+	// Reset due date to None
+	document.getElementById('newTaskDueDateRadio1').checked = true;
+	newTaskDueDateField.disabled = true;
+	// Reset color selection (future)	
 }
 
-function updateMainTaskList() {
-	// If there are no tasks in the main list, show the placeholder, otherwise show each task.
-	// Note: this will result in a visible flicker if updating the entire list, so try not to use it when inserting or removing just one element.
-	
-	// Remove any non-placeholder rows from main tasks container
-	removeNonPlaceholderRows(mainTasksContainer);
-	
-	if (mainTasks.length == 0) {
-		mainTasksPlaceholder.hidden = false;
-	} else {
-		mainTasksPlaceholder.hidden = true;
-		let index = 0;
-		for (const task of mainTasks) {
-			let rowDiv = rowDivWithTask(task, "task_"+index);
-			mainTasksContainer.appendChild(rowDiv);
-			index++;
-		}
-	}
-}
-
-function updateCompletedTaskList() {
-	removeNonPlaceholderRows(completedTasksContainer);
-	
-	if (completedTasks.length == 0) {
-		completedTasksPlaceholder.hidden = false;
-	} else {
-		completedTasksPlaceholder.hidden = true;
-		let index = 0;
-		for (const task of completedTasks) {
-			let rowDiv = rowDivWithTask(task, "task_"+index);
-			completedTasksContainer.appendChild(rowDiv);
-			index++;
-		}
-	}
-}
-// ---- Main Script ----
-
-// -- Add event listeners --
+/* ! New Task event listeners */
 
 // New Task: Due Date radio group
 document.getElementById('newTaskDueDateRadioGroup').addEventListener('click', ({target}) => {
@@ -197,12 +216,18 @@ document.getElementById('newTaskDueDateRadioGroup').addEventListener('click', ({
 			newTaskDueDateField.disabled = false;
 		}
 	}
+
+	// Prevent event propagation so that body event handler does not deselect rows.
+	event.stopPropagation();
 });
 
 // New Task: Cancel button
 document.getElementById('newTaskCancel').addEventListener('click', ({target}) => {
 	// Clear all fields
 	clearNewTaskFields();
+
+	// Prevent event propagation so that body event handler does not deselect rows.
+	event.stopPropagation();
 });
 
 // New Task: OK button ("New Task")
@@ -220,7 +245,31 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 	clearNewTaskFields();	
 });
 
-// Main script
+/* !- == Edit Task == */
+
+// Show "Edit Task" modal
+function showEditTaskModal(task) {
+	// TODO: implement this
+}
+
+
+/* !- Body event listeners */
+// Add click event listener so that clicks here deselect rows
+document.addEventListener('click', event => {
+	deselect();
+	updateSelection();
+	//console.log("Background clicked");
+});
+
+// Add keydown event listener for key shortcuts
+document.addEventListener('keydown', event => {
+	if (event.key === "Delete" || event.key === "Backspace") {
+		deleteSelectedTask();
+	}
+	console.log("keydown: "+event.key);
+});
+
+/* !- Main script */
 
 // Assignment says to "Add a list of tasks", so this adds a list of sample tasks.
 mainTasks.push(new Task("Welcome to your to-do list!", null, null));
