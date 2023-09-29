@@ -21,6 +21,7 @@ var mainTasks = new Array();
 var completedTasks = new Array();
 var deletedTasks = new Array();
 var selectedTasks = new Set();
+var taskBeingEdited = null;
 
 // Frequently accessed elements
 const mainTasksContainer = document.getElementById('main-tasks-container');
@@ -249,7 +250,13 @@ document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
 
 // Show "Edit Task" modal
 function showEditTaskModal(task) {
+	taskBeingEdited = task;
+	// Fill out form fields with data
+	
 	// TODO: implement this
+	// Create and show the modal
+	let editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+	editModal.show();
 }
 
 // Delete a task
