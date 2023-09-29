@@ -24,7 +24,7 @@ class Task {
 		rowDiv.id = rowIdentifier+"_row";
 		
 		let checkboxDiv = document.createElement("div");
-		checkboxDiv.className = "col-1 checkbox m-1 ";
+		checkboxDiv.className = "col-1 checkbox m-1 text-end";
 		rowDiv.appendChild(checkboxDiv);
 		
 		let checkboxInput = document.createElement("input");
@@ -42,7 +42,7 @@ class Task {
 		// Because of the float-end, put due date before title text
 		if (this.dueDate != null) {
 			let dateDiv = document.createElement("span");
-			dateDiv.className = "badge rounded-pill bg-light text-dark ms-1 float-end";
+			dateDiv.className = "badge rounded-pill bg-light text-dark m-1 float-end";
 			dateDiv.appendChild(document.createTextNode(this.dueDate));
 			titleDiv.appendChild(dateDiv);
 		}
@@ -104,19 +104,26 @@ class Task {
 	// Returns the className for a row div associated with this task,
 	// which includes the background color for selection and color coding
 	rowClassName(selected) {
-		const base = "row my-1 rounded ";
-		const selName = "bg-info bg-gradient";
+		let result = "row my-1 rounded ";
 		
-		if (selected) {
-			return base+selName;
-		} else if (this.color === "4") {
-			return base+"bg-success text-white"; // Green
+		if (this.color === "4") {
+			result = result+"bg-success text-white"; // Green
 		} else if (this.color === "3") {
-			return base+"bg-warning"; // Yellow
+			result = result+"bg-warning"; // Yellow
 		} else if (this.color === "2") {
-			return base+"bg-danger text-white"; // Red
+			result = result+"bg-danger text-white"; // Red
+		} else {
+			result = result+"bg-white";
 		}
-		return base+"bg-white";
+		
+		result = result + " border border-2";
+		if (selected) {
+			result = result + " border-primary";
+		} else {
+			result = result + " border-white";
+		}
+		
+		return result;
 	}
 
 	// Delete a task from all lists
