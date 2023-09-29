@@ -67,21 +67,12 @@ class Task {
 		// Add event handlers for when task is checked off, show an animation and 
 		// move the task to the completed list if it was on the main list, or vice-versa.
 		checkboxInput.addEventListener('click', (event) => {
-			console.log("Checkbox: "+event.target.checked);
+			//console.log("Checkbox: "+event.target.checked);
 			this.checkedOff = event.target.checked;
 			
 			// TODO: animate crossing off the item
 			
 			// Pause 0.5 seconds, then move task to other list
-			let sourceList, destinationList;
-			if (mainTasks.includes(this)) {
-				sourceList = mainTasks;
-				destinationList = completedTasks;
-			} else {
-				sourceList = completedTasks;
-				destinationList = mainTasks;
-			}
-			
 			setTimeout(() => {
 				this.deleteFromAllLists();
 				if (this.checkedOff) {
