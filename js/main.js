@@ -475,20 +475,22 @@ document.addEventListener('click', event => {
 // Add keydown event listener for key shortcuts
 document.addEventListener('keydown', event => {
 	if (!modalIsOpen()) {
-		event.preventDefault();
 		switch (event.key) {
 			case "Delete": case "Backspace":
 				// Delete Task
+				event.preventDefault();
 				event.stopPropagation();		
 				deleteSelectedTasks();
 				break;
 			case "N": case "n":
 				// New Task
+				event.preventDefault();
 				event.stopPropagation();
 				showNewTaskModal();
 				break;
 			case "Return": case "Enter":
 				// Edit Task
+				event.preventDefault();
 				event.stopPropagation();
 				if (selectedTasks.size > 0) {
 					showEditTaskModal(selectedTasks.values().next().value);
