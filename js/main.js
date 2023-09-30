@@ -389,7 +389,6 @@ function showEditTaskModal(task) {
 	titleField.value = task.title;
 	
 	// Due Date
-	let dueCheckbox = document.getElementById('editTaskDueCheckbox');
 	let dueDatePicker = document.getElementById('editTaskDueDatePicker');
 	let hasDueDate = false;
 	if (task.dueDate != null) {
@@ -397,15 +396,8 @@ function showEditTaskModal(task) {
 			hasDueDate = true;
 		}
 	}
-	if (hasDueDate) {
-		dueCheckbox.checked = true;
-		dueDatePicker.disabled = false;
-		dueDatePicker.value = task.dueDate;
-	} else {
-		dueCheckbox.checked = false;
-		dueDatePicker.disabled = true;
-		dueDatePicker.value = null;
-	}
+	dueDatePicker.value = hasDueDate ? task.dueDate : null;
+	updateDueDateAccessories("editTask");
 	
 	// Color
 	const colorButtonPrefix = "editTaskColor";
@@ -442,14 +434,11 @@ function editTaskModalOK() {
 	taskBeingEdited.title = document.getElementById('editTaskTitleField').value;
 
 	// Due Date
-	const checkbox = document.getElementById('editTaskDueCheckbox');
 	const datePicker = document.getElementById('editTaskDueDatePicker');
 	taskBeingEdited.dueDate = null;
-	if (checkbox.checked) {
-		if (datePicker.value) {
-			if (datePicker.value.length > 0) {
-				taskBeingEdited.dueDate = datePicker.value;
-			}
+	if (datePicker.value) {
+		if (datePicker.value.length > 0) {
+			taskBeingEdited.dueDate = datePicker.value;
 		}
 	}
 	
@@ -468,6 +457,17 @@ function editTaskModalOK() {
 }
 
 /* ! __ Edit Task event listeners */
+
+// Edit Task: Date picker
+document.getElementById('editTaskDueDatePicker').addEventListener('change', event => {
+	updateDueDateAccessories("editTask");
+});
+
+// Edit Task: Clear date button
+document.getElementById('editTaskDueDateClearButton').addEventListener('click', event => {
+	document.getElementById('editTaskDueDatePicker').value = null;
+	updateDueDateAccessories("editTask");
+});
 
 // Edit Task: Delete button
 document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {

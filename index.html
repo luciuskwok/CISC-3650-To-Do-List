@@ -73,7 +73,7 @@
 				<div class="modal-body bg-light">
 					<div class="container">
 						<div class="row py-2">
-							<div class="col col-12">
+							<div class="col col-12 px-0">
 								<textarea class="form-control form-control-lg" id="newTaskTitleField" rows="3" placeholder="task title"></textarea>
 							</div>
 						</div>
@@ -108,8 +108,8 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="newTaskCancel">Cancel</button>
-					<button type="button" class="btn btn-primary" id="newTaskOK">New Task</button>
+					<button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal" id="newTaskCancel">Cancel</button>
+					<button type="button" class="btn btn-primary px-4" id="newTaskOK">New Task</button>
 				</div>
 			</div><!-- "modal-content" -->
 		</div><!-- "modal-dialog" -->
@@ -126,22 +126,23 @@
 				<div class="modal-body">
 					<div class="container">
 						<div class="row py-2">
-							<div class="col col-12">
+							<div class="col col-12 px-0">
 								<textarea class="form-control form-control-lg" id="editTaskTitleField" rows="3" placeholder="task title"></textarea>
 							</div>
 						</div>
-						<div class="row py-2">
-							<div class="col col-12 mx-1">
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="checkbox" id="editTaskDueCheckbox" value="due">
-									<label class="form-check-label h5 pe-2" for="editTaskDueCheckbox">Due</label>
-									<input class="form-check form-check-inline" type="date" id="editTaskDueDatePicker" disabled>
-								</div>
+						<div class="row py-2 align-items-center">
+							<div class="col-2 mx-1 px-1 pt-1 text-end h5">Due</div>
+							<div class="col-auto mx-1 px-1">
+								<input type="date" class="form-control" id="editTaskDueDatePicker">
+							</div>
+							<div class="col-auto">
+								<button type="button" class="btn btn-outline-primary" id="editTaskDueDateClearButton">Clear</button>
+								<span class="form-text" id="editTaskDueDateNone">(no due date)</span>
 							</div>
 						</div>
-						<div class="row py-2">
-							<div class="col col-12 mx-1">
-								<span class="h5 ps-2 pe-2">Color</span>
+						<div class="row py-2 align-items-center">
+							<div class="col-2 mx-1 px-1 pt-1 text-end h5">Color</div>
+							<div class="col-auto mx-1 px-1">
 								<div class="btn-group" role="group" aria-label="Edit task color radio button group">
 									<input type="radio" class="btn-check" name="editTaskColor" id="editTaskColor1" checked>
 										<label class="btn btn-outline-dark" for="editTaskColor1">None</label>
@@ -160,9 +161,9 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-outline-danger me-auto " data-bs-dismiss="modal" id="editTaskDelete">Delete</button>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="editTaskCancel">Cancel</button>
-					<button type="button" class="btn btn-primary" id="editTaskOK">OK</button>
+					<button type="button" class="btn btn-outline-danger me-auto px-3" data-bs-dismiss="modal" id="editTaskDelete">Delete</button>
+					<button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal" id="editTaskCancel">Cancel</button>
+					<button type="button" class="btn btn-primary px-4" id="editTaskOK">OK</button>
 				</div>
 			</div><!-- "modal-content" -->
 		</div><!-- "modal-dialog" -->
