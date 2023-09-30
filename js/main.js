@@ -60,7 +60,7 @@ class Task {
 		contentDiv.appendChild(titleSpan);
 			
 		// Add event handler so that clicking on a row makes it selected
-		contentDiv.addEventListener('click', (event) => {
+		contentDiv.addEventListener('mousedown', (event) => {
 			// Deselect
 			// TODO: allow multiple selection with shift, ctrl, or command keys
 			//if (event.shiftKey) ...
@@ -101,11 +101,11 @@ class Task {
 		let result = "row my-1 mx-1 gx-0 rounded ";
 		
 		if (this.color === "4") {
-			result = result+"bg-success text-white"; // Green
+			result = result+"bg-success-subtle "; // Green
 		} else if (this.color === "3") {
-			result = result+"bg-warning"; // Yellow
+			result = result+"bg-warning-subtle"; // Yellow
 		} else if (this.color === "2") {
-			result = result+"bg-danger text-white"; // Red
+			result = result+"bg-danger-subtle "; // Red
 		} else {
 			result = result+"bg-white";
 		}
@@ -522,7 +522,7 @@ function updateDueDateAccessories(modalPrefix) {
 
 /* !- Body event listeners */
 // Add click event listener so that clicks here deselect rows
-document.addEventListener('click', event => {
+document.addEventListener('mousedown', event => {
 	if (!modalIsOpen()) {
 		deselect();
 		updateSelection();
@@ -576,7 +576,7 @@ function isElementVisible(elementId) {
 mainTasks.push(new Task("Welcome to your to-do list!", null, null));
 mainTasks.push(new Task("These are sample tasks to show you how this task list works", null, null));
 mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null));
-mainTasks.push(new Task("Double click on the task to edit it", null, null));
+mainTasks.push(new Task("Double click on the task to edit it", null, "4"));
 mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3"));
 updateMainTaskList();
 
