@@ -23,19 +23,24 @@ class Task {
 		rowDiv.className = this.rowClassName(false);
 		rowDiv.id = rowIdentifier+"_row";
 		
-		const checkboxDiv = document.createElement("div");
-		checkboxDiv.className = "col-1 checkbox m-1 text-end";
-		rowDiv.appendChild(checkboxDiv);
+		const checkboxColDiv = document.createElement("div");
+		checkboxColDiv.className = "col-auto ms-2 me-0"; // bg-secondary
+		rowDiv.appendChild(checkboxColDiv);
+		
+		const checkboxFormDiv = document.createElement("div");
+		checkboxFormDiv.className = "form-check my-1 mx-1";
+		checkboxColDiv.appendChild(checkboxFormDiv);
 		
 		const checkboxInput = document.createElement("input");
 		checkboxInput.type = "checkbox";
+		checkboxInput.className = "form-check-input"
 		checkboxInput.id = rowIdentifier+"_checkbox";
 		checkboxInput.checked = this.checkedOff;
-		checkboxDiv.appendChild(checkboxInput);
+		checkboxFormDiv.appendChild(checkboxInput);
 		
 		// Title
 		const contentDiv = document.createElement("div");
-		contentDiv.className = "col m-0 py-1 user-select-none";
+		contentDiv.className = "col mx-0 px-1 py-1 user-select-none";
 		contentDiv.id = rowIdentifier+"_content";
 		rowDiv.appendChild(contentDiv);
 		
@@ -43,7 +48,7 @@ class Task {
 		// Because of the float-end, put due date before title text
 		if (this.dueDate != null) {
 			let dateDiv = document.createElement("span");
-			dateDiv.className = "badge rounded-pill bg-light text-dark m-1 float-end";
+			dateDiv.className = "badge rounded-pill bg-light text-dark my-1 mx-1 float-end";
 			dateDiv.appendChild(document.createTextNode(this.dueDate));
 			contentDiv.appendChild(dateDiv);
 		}
@@ -90,10 +95,36 @@ class Task {
 		return rowDiv;
 	}
 	
+	// Returns the className for a row div associated with this task,
+	// which includes the background color for selection and color coding
+	rowClassName(selected) {
+		let result = "row my-1 mx-1 gx-0 rounded ";
+		
+		if (this.color === "4") {
+			result = result+"bg-success text-white"; // Green
+		} else if (this.color === "3") {
+			result = result+"bg-warning"; // Yellow
+		} else if (this.color === "2") {
+			result = result+"bg-danger text-white"; // Red
+		} else {
+			result = result+"bg-white";
+		}
+		
+		result = result + " border border-2";
+		if (selected) {
+			result = result + " border-primary";
+		} else {
+			result = result + " border-white";
+		}
+		
+		return result;
+	}
+	
 	// Call this when a task's checked state is changed.
 	// This triggers an animation and then moves the task to the
 	// correct list for its state
 	checkedDidChange() {
+		let finalDelay = 400; // ms
 		if (this.checkedOff) {
 			// Show animation crossing off the item
 			const titleSpan = document.getElementById("task_"+this.identifier+"_title");
@@ -124,8 +155,11 @@ class Task {
 			for (let i=1; i<frames; i++) {
 				setTimeout(() => {
 					titleSpan.innerText = versions[i];
-				}, 400*i/frames);
+				}, 500*i/frames);
 			}
+			
+			// Extend the final delay to show last frame of animation longer
+			finalDelay = 650;
 		}
 		
 		// Pause 0.5 seconds, then move task to other list
@@ -137,32 +171,7 @@ class Task {
 				mainTasks.splice(0, 0, this);
 			}
 			updateAllTaskLists();
-		}, 500);
-	}
-	
-	// Returns the className for a row div associated with this task,
-	// which includes the background color for selection and color coding
-	rowClassName(selected) {
-		let result = "row my-1 rounded ";
-		
-		if (this.color === "4") {
-			result = result+"bg-success text-white"; // Green
-		} else if (this.color === "3") {
-			result = result+"bg-warning"; // Yellow
-		} else if (this.color === "2") {
-			result = result+"bg-danger text-white"; // Red
-		} else {
-			result = result+"bg-white";
-		}
-		
-		result = result + " border border-2";
-		if (selected) {
-			result = result + " border-primary";
-		} else {
-			result = result + " border-white";
-		}
-		
-		return result;
+		}, finalDelay);
 	}
 
 	// Delete a task from all lists
@@ -282,12 +291,13 @@ function showNewTaskModal() {
 
 // Clear all the input fields in the "New Task" modal
 function clearNewTaskFields() {
-	// Clear title
+	// Title
 	document.getElementById('newTaskTitleField').value = "";
-	// Reset due date to None
-	document.getElementById('newTaskDueCheckbox').checked = false;
-	newTaskDueDatePicker.disabled = true;
-	// Reset color selection
+	// Due Date
+	document.getElementById('newTaskDueDatePicker').value = null;
+	document.getElementById('newTaskDueDateClearButton').hidden = true;
+	document.getElementById('newTaskDueDateNone').hidden = false;
+	// Color
 	document.getElementById('newTaskColor1').checked = true;
 }
 
@@ -305,10 +315,7 @@ function newTaskModalOK() {
 	let taskTitle = document.getElementById('newTaskTitleField').value;
 	
 	// Due date
-	let dueDate = null;
-	if (document.getElementById('newTaskDueCheckbox').checked) {
-		dueDate = document.getElementById('newTaskDueDatePicker').value;
-	}
+	let dueDate = document.getElementById('newTaskDueDatePicker').value;
 	//console.log("Date: "+dueDate);
 	
 	// Color
@@ -333,11 +340,15 @@ document.getElementById('showNewTaskButton').addEventListener('click', ({target}
 	showNewTaskModal();
 });
 
-// New Task: Due Date checkbox
-document.getElementById('newTaskDueCheckbox').addEventListener('click', ({target}) => {
-	// Sets date picker enabled status based on checkbox.
-	const datePicker = document.getElementById('newTaskDueDatePicker');
-	datePicker.disabled = !target.checked;
+// New Task: Date picker
+document.getElementById('newTaskDueDatePicker').addEventListener('change', event => {
+	updateDueDateAccessories("newTask");
+});
+
+// New Task: Clear date button
+document.getElementById('newTaskDueDateClearButton').addEventListener('click', event => {
+	document.getElementById('newTaskDueDatePicker').value = null;
+	updateDueDateAccessories("newTask");
 });
 
 // New Task: Cancel button
@@ -458,13 +469,6 @@ function editTaskModalOK() {
 
 /* ! __ Edit Task event listeners */
 
-// Edit Task: Due Date checkbox
-document.getElementById('editTaskDueCheckbox').addEventListener('click', ({target}) => {
-	// Sets date picker enabled status based on checkbox.
-	const datePicker = document.getElementById('editTaskDueDatePicker');
-	datePicker.disabled = !target.checked;
-});
-
 // Edit Task: Delete button
 document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
 	taskBeingEdited.deleteFromAllLists();
@@ -501,6 +505,20 @@ document.getElementById('editTaskModal').addEventListener('keydown', event => {
 document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
 	editTaskModalOK();
 });
+
+/* !- Common modal functions */
+
+function updateDueDateAccessories(modalPrefix) {
+	const datePicker = document.getElementById(modalPrefix+'DueDatePicker');
+	const clearBtn = document.getElementById(modalPrefix+'DueDateClearButton');
+	const noneTxt = document.getElementById(modalPrefix+'DueDateNone');
+	let valid = false;
+	if (datePicker.value) {
+		valid = (datePicker.value.length > 0);
+	}
+	clearBtn.hidden = !valid;
+	noneTxt.hidden = valid;
+}
 
 /* !- Body event listeners */
 // Add click event listener so that clicks here deselect rows
