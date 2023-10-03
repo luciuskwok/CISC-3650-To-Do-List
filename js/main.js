@@ -6,11 +6,12 @@
 // Task class
 class Task {
 	static taskIdentifier = 1;
-	constructor(title, dueDate, color) {
+	constructor(title, dueDate, color, indent) {
 		this.title = title;
 		this.dueDate = dueDate;
 		this.color = color;
 		this.checkedOff = false;
+		this.indent = indent;
 		this.identifier = Task.taskIdentifier;
 		Task.taskIdentifier++;
 	}
@@ -115,7 +116,7 @@ class Task {
 	// Returns the className for a row div associated with this task,
 	// which includes the background color for selection and color coding
 	rowClassName(selected) {
-		let result = "row my-1 mx-1 gx-0 rounded ";
+		let result = "row my-1 ms-"+(3*this.indent+1)+" me-1 gx-0 rounded ";
 		
 		if (this.color === "4") {
 			result = result+"bg-success-subtle "; // Green
@@ -590,11 +591,11 @@ function isElementVisible(elementId) {
 /* !- Main script */
 
 // Assignment says to "Add a list of tasks", so this adds a list of sample tasks.
-mainTasks.push(new Task("Welcome to your to-do list!", null, null));
-mainTasks.push(new Task("These are sample tasks to show you how this task list works", null, null));
-mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null));
-mainTasks.push(new Task("Double click on the task to edit it", null, "4"));
-mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3"));
+mainTasks.push(new Task("Welcome to your to-do list!", null, null, 0));
+mainTasks.push(new Task("These are sample tasks to show you how this task list works", null, null, 1));
+mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null, 0));
+mainTasks.push(new Task("Double click on the task to edit it", null, "4", 0));
+mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3", 0));
 updateMainTaskList();
 
 // Check the Due Date radio group button for None
