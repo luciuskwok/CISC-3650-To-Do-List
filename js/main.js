@@ -18,9 +18,11 @@ class Task {
 	// Create a <div> for the task, to be inserted into the DOM
 	rowDiv() {
 		const rowIdentifier = "task_"+this.identifier;
+		
 		// Add a new row for the task
 		const rowDiv = document.createElement("div");
 		rowDiv.className = this.rowClassName(false);
+		rowDiv.draggable = true;
 		rowDiv.id = rowIdentifier+"_row";
 		
 		const checkboxColDiv = document.createElement("div");
@@ -33,7 +35,7 @@ class Task {
 		
 		const checkboxInput = document.createElement("input");
 		checkboxInput.type = "checkbox";
-		checkboxInput.className = "form-check-input"
+		checkboxInput.className = "form-check-input border border-primary"
 		checkboxInput.id = rowIdentifier+"_checkbox";
 		checkboxInput.checked = this.checkedOff;
 		checkboxFormDiv.appendChild(checkboxInput);
@@ -61,19 +63,7 @@ class Task {
 			
 		// Add event handler so that clicking on a row makes it selected
 		contentDiv.addEventListener('mousedown', (event) => {
-			// Deselect
-			// TODO: allow multiple selection with shift, ctrl, or command keys
-			//if (event.shiftKey) ...
-			deselect();
-	
-			// Select this element
-			selectedTasks.add(this);
-	
-			// Visually indicate selection
-			updateSelection();
-			
-			// Prevent event propagation so that body event handler does not deselect rows.
-			event.stopPropagation();
+			this.mouseDown(event);
 		});
 		
 		// Add event handler for double-click to edit task
@@ -92,7 +82,34 @@ class Task {
 			this.checkedDidChange();
 		});
 		
+		// Add event handler for dragging start
+		rowDiv.addEventListener('dragstart', (event) => {
+			rowDiv.style.opacity = '0.33';
+		});
+		
+		// Add event handler for dragging start
+		rowDiv.addEventListener('dragend', (event) => {
+			rowDiv.style.opacity = '1';
+		});
+		
 		return rowDiv;
+	}
+	
+	// Handles mousedown event
+	mouseDown(event) {
+		// Deselect
+		// TODO: allow multiple selection with shift, ctrl, or command keys
+		//if (event.shiftKey) ...
+		deselect();
+
+		// Select this element
+		selectedTasks.add(this);
+
+		// Visually indicate selection
+		updateSelection();
+		
+		// Prevent event propagation so that body event handler does not deselect rows.
+		event.stopPropagation();
 	}
 	
 	// Returns the className for a row div associated with this task,
