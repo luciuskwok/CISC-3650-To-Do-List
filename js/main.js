@@ -83,6 +83,11 @@ class Task {
 			this.checkedDidChange();
 		});
 		
+		// Add event handler for drag
+		rowDiv.addEventListener('drag', (event) => {
+			//console.log('drag');
+		});
+		
 		// Add event handler for dragging start
 		rowDiv.addEventListener('dragstart', (event) => {
 			rowDiv.style.opacity = '0.33';
@@ -93,26 +98,35 @@ class Task {
 			rowDiv.style.opacity = '1';
 		});
 		
+		// Add event handler for drag over
+		rowDiv.addEventListener('dragover', (event) => {
+			event.preventDefault();
+			return false;
+		});
+		
+		// Add event handler for drag enter
+		rowDiv.addEventListener('dragenter', (event) => {
+			rowDiv.classList.remove('border-white');
+			rowDiv.classList.add('border-success');
+			//console.log("drag enter");
+		});
+		
+		// Add event handler for drag leave
+		rowDiv.addEventListener('dragleave', (event) => {
+			rowDiv.classList.remove('border-success');
+			rowDiv.classList.add('border-white');
+			//console.log("drag leave");
+		});
+		
+		// Add event handler for drag end
+		rowDiv.addEventListener('dragend', (event) => {
+			//this.dragEnd(event);
+			console.log("drag end");
+		});
+		
 		return rowDiv;
 	}
-	
-	// Handles mousedown event
-	mouseDown(event) {
-		// Deselect
-		// TODO: allow multiple selection with shift, ctrl, or command keys
-		//if (event.shiftKey) ...
-		deselect();
 
-		// Select this element
-		selectedTasks.add(this);
-
-		// Visually indicate selection
-		updateSelection();
-		
-		// Prevent event propagation so that body event handler does not deselect rows.
-		event.stopPropagation();
-	}
-	
 	// Returns the className for a row div associated with this task,
 	// which includes the background color for selection and color coding
 	rowClassName(selected) {
@@ -130,12 +144,29 @@ class Task {
 		
 		result = result + " border border-2";
 		if (selected) {
-			result = result + " border-primary";
+			result = result + " border-primary"; // border-primary
 		} else {
 			result = result + " border-white";
 		}
 		
 		return result;
+	}
+	
+	// Handles mouse down event
+	mouseDown(event) {
+		// Deselect
+		// TODO: allow multiple selection with shift, ctrl, or command keys
+		//if (event.shiftKey) ...
+		deselect();
+
+		// Select this element
+		selectedTasks.add(this);
+
+		// Visually indicate selection
+		updateSelection();
+		
+		// Prevent event propagation so that body event handler does not deselect rows.
+		event.stopPropagation();
 	}
 	
 	// Call this when a task's checked state is changed.
@@ -198,6 +229,19 @@ class Task {
 		mainTasks = mainTasks.filter(x => (x !== this));
 		completedTasks = completedTasks.filter(x => (x !== this));
 	}
+	
+	// Increase or decrease the indentation level.
+	// Possible indentation values are 0 and 1.
+	shiftIndentation(direction) {
+		let x = this.indent + direction;
+		x = x<0? 0 : x; // Limit to zero or higher
+		x = x>1? 1 : x; // Limit to one or lower
+		if (this.indent != x) {
+			this.indent = x;
+			return true;
+		}
+		return false;
+	}
 }
 
 // Globals
@@ -242,6 +286,7 @@ function updateSelectionWithContainer(taskList) {
 function updateAllTaskLists() {
 	updateMainTaskList();
 	updateCompletedTaskList();
+	updateSelection();
 }
 
 function updateMainTaskList() {
@@ -547,37 +592,54 @@ document.addEventListener('mousedown', event => {
 	}
 });
 
-// Add keydown event listener for key shortcuts
-document.addEventListener('keydown', event => {
+function handleKeyDown(event) {
 	if (!modalIsOpen()) {
 		switch (event.key) {
 			case "Delete": case "Backspace":
 				// Delete Task
-				event.preventDefault();
-				event.stopPropagation();		
 				deleteSelectedTasks();
-				break;
+				event.preventDefault();
+				return false;
 			case "N": case "n":
 				// New Task
-				event.preventDefault();
-				event.stopPropagation();
 				showNewTaskModal();
-				break;
+				event.preventDefault();
+				return false;
 			case "Return": case "Enter":
 				// Edit Task
-				event.preventDefault();
-				event.stopPropagation();
 				if (selectedTasks.size > 0) {
-					showEditTaskModal(selectedTasks.values().next().value);
+					showEditTaskModal(anySelectedTask());
 				}
-				break;
+				event.preventDefault();
+				return false;
+			case "Tab":
+				// Indent Task
+				if (selectedTasks.size > 0) {
+					let changed = false;
+					let task = anySelectedTask();
+					if (event.shiftKey) {
+						// Remove indent
+						changed = task.shiftIndentation(-1);
+					} else {
+						// Add indent
+						changed = task.shiftIndentation(1);
+					}
+					if (changed) {
+						updateAllTaskLists();
+					}
+				}
+				event.preventDefault();
+				return false;
 			case " ":
 				// Toggle checkmark on task
 				//console.log("Spacebar pressed");
 				break;
 		}
 	}
-});
+}
+
+// Add keydown event listener for key shortcuts
+document.addEventListener('keydown', handleKeyDown);
 
 function modalIsOpen() {
 	return isElementVisible('editTaskModal') || isElementVisible('newTaskModal');
@@ -588,6 +650,10 @@ function isElementVisible(elementId) {
 	return display != null && display !== "" &&display !== "none";
 }
 
+function anySelectedTask() {
+	return selectedTasks.values().next().value;
+}
+
 /* !- Main script */
 
 // Assignment says to "Add a list of tasks", so this adds a list of sample tasks.
@@ -596,6 +662,7 @@ mainTasks.push(new Task("These are sample tasks to show you how this task list w
 mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null, 0));
 mainTasks.push(new Task("Double click on the task to edit it", null, "4", 0));
 mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3", 0));
+mainTasks.push(new Task("Drag a task to move it or indent it", null, "2", 1));
 updateMainTaskList();
 
 // Check the Due Date radio group button for None
