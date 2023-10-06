@@ -23,7 +23,6 @@ class Task {
 		// Add a new row for the task
 		const rowDiv = document.createElement("div");
 		rowDiv.className = this.rowClassName(false);
-		rowDiv.draggable = true;
 		rowDiv.id = rowIdentifier+"_row";
 		
 		const checkboxColDiv = document.createElement("div");
@@ -82,48 +81,7 @@ class Task {
 			this.checkedOff = event.target.checked;
 			this.checkedDidChange();
 		});
-		
-		// Add event handler for drag
-		rowDiv.addEventListener('drag', (event) => {
-			//console.log('drag');
-		});
-		
-		// Add event handler for dragging start
-		rowDiv.addEventListener('dragstart', (event) => {
-			rowDiv.style.opacity = '0.33';
-		});
-		
-		// Add event handler for dragging start
-		rowDiv.addEventListener('dragend', (event) => {
-			rowDiv.style.opacity = '1';
-		});
-		
-		// Add event handler for drag over
-		rowDiv.addEventListener('dragover', (event) => {
-			event.preventDefault();
-			return false;
-		});
-		
-		// Add event handler for drag enter
-		rowDiv.addEventListener('dragenter', (event) => {
-			rowDiv.classList.remove('border-white');
-			rowDiv.classList.add('border-success');
-			//console.log("drag enter");
-		});
-		
-		// Add event handler for drag leave
-		rowDiv.addEventListener('dragleave', (event) => {
-			rowDiv.classList.remove('border-success');
-			rowDiv.classList.add('border-white');
-			//console.log("drag leave");
-		});
-		
-		// Add event handler for drag end
-		rowDiv.addEventListener('dragend', (event) => {
-			//this.dragEnd(event);
-			console.log("drag end");
-		});
-		
+
 		return rowDiv;
 	}
 
@@ -662,7 +620,6 @@ mainTasks.push(new Task("These are sample tasks to show you how this task list w
 mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null, 0));
 mainTasks.push(new Task("Double click on the task to edit it", null, "4", 0));
 mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3", 0));
-mainTasks.push(new Task("Drag a task to move it or indent it", null, "2", 1));
 updateMainTaskList();
 
 // Check the Due Date radio group button for None
