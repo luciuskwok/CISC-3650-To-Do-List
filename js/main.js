@@ -300,8 +300,13 @@ function removeNonPlaceholderRows(container) {
 /* ! __ Button event listeners */
 
 // New Task button that opens modal
-document.getElementById('showNewTaskButton').addEventListener('click', ({target}) => {
+document.getElementById('newTaskButton').addEventListener('click', ({target}) => {
 	showEditTaskModal(null, false);
+});
+
+// Add Subtask button that opens modal
+document.getElementById('addSubtaskButton').addEventListener('click', ({target}) => {
+	showEditTaskModal(anySelectedTask(), true);
 });
 
 
@@ -387,14 +392,20 @@ function editTaskModalDelete() {
 }
 
 function editTaskModalOK() {
-	let task = taskBeingEdited;
-	let parentTask = null;
-	if (editTaskMode === "addSubtask") {
-		parentTask = taskBeingEdited;
-		task = null;
-	}
-	if (task == null) {
+	let task = null;
+	let insertionIndex = 0;
+	
+	if (editTaskMode === "editTask") {
+		task = taskBeingEdited;
+	} else {
 		task = new Task();
+		if (editTaskMode === "addSubtask") {
+			task.indent = 1;
+			
+			// Find the index of the parent task
+			// TODO
+			insertionIndex = 1;
+		}
 	}
 	
 	// Title
@@ -416,13 +427,9 @@ function editTaskModalOK() {
 		task.color = selectedColor.charAt(selectedColor.length-1);
 	}
 	
-	if (editTaskMode === "newTask") {
-		task.indent = 0;
-		mainTasks.splice(0, 0, task);
-	} else if (editTaskMode === "addSubtask") {
-		task.indent = 1;
-		// TODO: get index of parent task, and insert subtask below it
-		mainTasks.splice(1, 0, task);
+	// Insert the new task or subtask
+	if (editTaskMode === "newTask" || editTaskMode === "addSubtask") {
+		mainTasks.splice(insertionIndex, 0, task);
 	}
 
 	// Deselect and update
