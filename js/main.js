@@ -104,7 +104,7 @@ class Task {
 		if (selected) {
 			result = result + " border-primary"; // border-primary
 		} else {
-			result = result + " border-white";
+			result = result + " border-light";
 		}
 		
 		return result;
