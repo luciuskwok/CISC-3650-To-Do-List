@@ -202,12 +202,13 @@ class Task {
 	}
 }
 
-// Globals
+// ! - Globals
 var mainTasks = new Array();
 var completedTasks = new Array();
 var deletedTasks = new Array();
 var selectedTasks = new Set();
 var taskBeingEdited = null;
+var editTaskMode = null;
 
 // Frequently accessed elements
 const mainTasksContainer = document.getElementById('main-tasks-container');
@@ -296,142 +297,75 @@ function removeNonPlaceholderRows(container) {
 	}
 }
 
-/* !- == New Task == */
-
-
-// Show "New Task" modal
-function showNewTaskModal() {
-	taskBeingEdited = null;
-	
-	// Create and show the modal
-	let newModal = new bootstrap.Modal(document.getElementById('newTaskModal'));
-	clearNewTaskFields();
-	newModal.show();
-	document.getElementById('newTaskTitleField').focus();
-}
-
-// Clear all the input fields in the "New Task" modal
-function clearNewTaskFields() {
-	// Title
-	document.getElementById('newTaskTitleField').value = "";
-	// Due Date
-	document.getElementById('newTaskDueDatePicker').value = null;
-	document.getElementById('newTaskDueDateClearButton').hidden = true;
-	document.getElementById('newTaskDueDateNone').hidden = false;
-	// Color
-	document.getElementById('newTaskColor1').checked = true;
-}
-
-function addNewTask(title, dueDate, color) {
-	// Add task to top of list
-	let task = new Task(title, dueDate, color);
-	mainTasks.splice(0, 0, task);
-	
-	updateMainTaskList();
-}
-
-// Call this when OK button or Enter key is pressed from New Task modal
-function newTaskModalOK() {
-	// Get title from newTaskTitleField
-	let taskTitle = document.getElementById('newTaskTitleField').value;
-	
-	// Due date
-	let dueDate = document.getElementById('newTaskDueDatePicker').value;
-	//console.log("Date: "+dueDate);
-	
-	// Color
-	let selectedColor = document.querySelector("[name=newTaskColor]:checked").id;
-	let color = null;
-	if (selectedColor.length > 1) {
-		color = selectedColor.charAt(selectedColor.length-1);
-	}
-	//console.log("Color: "+color);
-
-	// Add a new row for the task
-	addNewTask(taskTitle, dueDate, color);
-	
-	// Dismiss and clear modal
-	bootstrap.Modal.getInstance(document.getElementById('newTaskModal')).hide();
-}
-
-/* ! __ New Task event listeners */
+/* ! __ Button event listeners */
 
 // New Task button that opens modal
 document.getElementById('showNewTaskButton').addEventListener('click', ({target}) => {
-	showNewTaskModal();
+	showEditTaskModal(null, false);
 });
 
-// New Task: Date picker
-document.getElementById('newTaskDueDatePicker').addEventListener('change', event => {
-	updateDueDateAccessories("newTask");
-});
-
-// New Task: Clear date button
-document.getElementById('newTaskDueDateClearButton').addEventListener('click', event => {
-	document.getElementById('newTaskDueDatePicker').value = null;
-	updateDueDateAccessories("newTask");
-});
-
-// New Task: Cancel button
-document.getElementById('newTaskCancel').addEventListener('click', ({target}) => {
-	// Prevent event propagation so that body event handler does not deselect rows.
-	event.stopPropagation();
-});
-
-// New Task: Change Title input field behavior so Enter key OK's the modal
-document.getElementById('newTaskTitleField').addEventListener('keydown', event => {
-	if (event.key == "Return" || event.key == "Enter") {
-		newTaskModalOK();
-		event.stopPropagation();
-	}
-});
-
-// New Task: listen for return key event even if textarea is not in focus
-document.getElementById('newTaskModal').addEventListener('keydown', event => {
-	if (event.key == "Return" || event.key == "Enter") {
-		newTaskModalOK();
-		event.stopPropagation();
-	}
-});
-
-// New Task: OK button ("New Task")
-document.getElementById('newTaskOK').addEventListener('click', ({target}) => {
-	newTaskModalOK();
-});
 
 /* !- == Edit Task == */
 
-// Show "Edit Task" modal
-function showEditTaskModal(task) {
+// Show modal used for "New Task", "Add Subtask", and "Edit Task"
+// Pass in the task to edit when editing an existing task;
+// Pass in the parent task when adding a subtask;
+// Pass in null when creating a new task.
+function showEditTaskModal(task, isAddingSubtask) {
+	// Elements to modify
+	let modalTitle = document.getElementById('editTaskModalTitle');
+	let deleteButton = document.getElementById('editTaskDelete');
+	let titleField = document.getElementById('editTaskTitleField');
+	let dueDatePicker = document.getElementById('editTaskDueDatePicker');
+	
+	// Update globals
 	taskBeingEdited = task;
 	
-	// Title
-	let titleField = document.getElementById('editTaskTitleField');
-	titleField.value = task.title;
-	
-	// Due Date
-	let dueDatePicker = document.getElementById('editTaskDueDatePicker');
-	let hasDueDate = false;
-	if (task.dueDate != null) {
-		if (task.dueDate.length > 0) {
-			hasDueDate = true;
+	if (task != null) {
+		editTaskMode = "editTask";
+		
+		// == Set up modal for Edit Task ==
+		modalTitle.innerText = "Edit Task";
+		deleteButton.hidden = false;
+		
+		// Text of the task
+		titleField.value = task.title;
+		
+		// Due Date
+		let hasDueDate = false;
+		if (task.dueDate != null) hasDueDate = (task.dueDate.length > 0);
+		dueDatePicker.value = hasDueDate ? task.dueDate : null;
+		
+		// Color
+		const colorButtonPrefix = "editTaskColor";
+		// Preselect the default "None" color
+		document.getElementById(colorButtonPrefix+"1").checked = true;
+		if (task.color != null) {
+			if (task.color.length > 0) {
+				let radioButton = document.getElementById(colorButtonPrefix+task.color);
+				if (radioButton) {
+					radioButton.checked = true;
+				}
+			}
+		}	
+	} else {
+		// Setup that is common to New Task and Add Subtask
+		deleteButton.hidden = true;
+		
+		// Clear fields and set color to none
+		titleField.value = "";
+		dueDatePicker.value = null;
+		document.getElementById('editTaskColor1').checked = true;
+		
+		if (isAddingSubtask) {
+			editTaskMode = "addSubtask";
+			modalTitle.innerText = "Add Subtask";
+		} else {
+			editTaskMode = "newTask";
+			modalTitle.innerText = "New Task";
 		}
 	}
-	dueDatePicker.value = hasDueDate ? task.dueDate : null;
-	updateDueDateAccessories("editTask");
-	
-	// Color
-	const colorButtonPrefix = "editTaskColor";
-	// Preselect the default "None" color
-	document.getElementById(colorButtonPrefix+"1").checked = true;
-	if (task.color != null) {
-		if (task.color.length > 0) {
-			let radioButton = document.getElementById(colorButtonPrefix+task.color);
-			if (radioButton) {
-				radioButton.checked = true;
-			}
-		}
-	}	
+	updateDueDateAccessories();
 	
 	// Create and show the modal
 	let editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
@@ -440,38 +374,63 @@ function showEditTaskModal(task) {
 	document.getElementById('editTaskTitleField').focus();
 }
 
-// Delete selected tasks
-function deleteSelectedTasks() {
-	for (const task of selectedTasks) {
-		task.deleteFromAllLists();
+function editTaskModalDelete() {
+	if (editTaskMode !== "editTask") {
+		console.log("Cannot delete because no task is being edited.")
+		return;
 	}
-	deselect();
-	updateMainTaskList();
-	updateCompletedTaskList();
+
+	taskBeingEdited.deleteFromAllLists();
+	taskBeingEdited = null;
+	
+	updateAllTaskLists();
 }
 
 function editTaskModalOK() {
+	let task = taskBeingEdited;
+	let parentTask = null;
+	if (editTaskMode === "addSubtask") {
+		parentTask = taskBeingEdited;
+		task = null;
+	}
+	if (task == null) {
+		task = new Task();
+	}
+	
 	// Title
-	taskBeingEdited.title = document.getElementById('editTaskTitleField').value;
+	task.title = document.getElementById('editTaskTitleField').value;
 
 	// Due Date
 	const datePicker = document.getElementById('editTaskDueDatePicker');
-	taskBeingEdited.dueDate = null;
+	task.dueDate = null;
 	if (datePicker.value) {
 		if (datePicker.value.length > 0) {
-			taskBeingEdited.dueDate = datePicker.value;
+			task.dueDate = datePicker.value;
 		}
 	}
 	
 	// Color
 	let selectedColor = document.querySelector("[name=editTaskColor]:checked").id;
-	taskBeingEdited.color = null;
+	task.color = null;
 	if (selectedColor.length > 1) {
-		taskBeingEdited.color = selectedColor.charAt(selectedColor.length-1);
+		task.color = selectedColor.charAt(selectedColor.length-1);
+	}
+	
+	if (editTaskMode === "newTask") {
+		task.indent = 0;
+		mainTasks.splice(0, 0, task);
+	} else if (editTaskMode === "addSubtask") {
+		task.indent = 1;
+		// TODO: get index of parent task, and insert subtask below it
+		mainTasks.splice(1, 0, task);
 	}
 
 	// Deselect and update
 	updateAllTaskLists();
+	
+	// Reset globals
+	taskBeingEdited = null;
+	editTaskMode = null;
 	
 	// Dismiss modal
 	bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
@@ -481,28 +440,18 @@ function editTaskModalOK() {
 
 // Edit Task: Date picker
 document.getElementById('editTaskDueDatePicker').addEventListener('change', event => {
-	updateDueDateAccessories("editTask");
+	updateDueDateAccessories();
 });
 
 // Edit Task: Clear date button
 document.getElementById('editTaskDueDateClearButton').addEventListener('click', event => {
 	document.getElementById('editTaskDueDatePicker').value = null;
-	updateDueDateAccessories("editTask");
+	updateDueDateAccessories();
 });
 
 // Edit Task: Delete button
 document.getElementById('editTaskDelete').addEventListener('click', ({target}) => {
-	taskBeingEdited.deleteFromAllLists();
-	taskBeingEdited = null;
-	
-	updateAllTaskLists();
-	// Allow event propagation so that body event handler deselects rows.
-});
-
-// Edit Task: Cancel button
-document.getElementById('editTaskCancel').addEventListener('click', ({target}) => {
-	// Prevent event propagation so that body event handler does not deselect rows.
-	//event.stopPropagation();
+	editTaskModalDelete();
 });
 
 
@@ -529,10 +478,11 @@ document.getElementById('editTaskOK').addEventListener('click', ({target}) => {
 
 /* !- Common modal functions */
 
-function updateDueDateAccessories(modalPrefix) {
-	const datePicker = document.getElementById(modalPrefix+'DueDatePicker');
-	const clearBtn = document.getElementById(modalPrefix+'DueDateClearButton');
-	const noneTxt = document.getElementById(modalPrefix+'DueDateNone');
+function updateDueDateAccessories() {
+	const prefix = "editTaskDueDate";
+	const datePicker = document.getElementById(prefix+'Picker');
+	const clearBtn = document.getElementById(prefix+'ClearButton');
+	const noneTxt = document.getElementById(prefix+'None');
 	let valid = false;
 	if (datePicker.value) {
 		valid = (datePicker.value.length > 0);
@@ -566,7 +516,7 @@ function handleKeyDown(event) {
 			case "Return": case "Enter":
 				// Edit Task
 				if (selectedTasks.size > 0) {
-					showEditTaskModal(anySelectedTask());
+					showEditTaskModal(anySelectedTask(), false);
 				}
 				event.preventDefault();
 				return false;
@@ -600,7 +550,7 @@ function handleKeyDown(event) {
 document.addEventListener('keydown', handleKeyDown);
 
 function modalIsOpen() {
-	return isElementVisible('editTaskModal') || isElementVisible('newTaskModal');
+	return isElementVisible('editTaskModal');
 }
 
 function isElementVisible(elementId) {
@@ -610,6 +560,16 @@ function isElementVisible(elementId) {
 
 function anySelectedTask() {
 	return selectedTasks.values().next().value;
+}
+
+// Delete selected tasks
+function deleteSelectedTasks() {
+	for (const task of selectedTasks) {
+		task.deleteFromAllLists();
+	}
+	deselect();
+	updateMainTaskList();
+	updateCompletedTaskList();
 }
 
 /* !- Main script */
