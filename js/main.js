@@ -3,6 +3,16 @@
 // Whole-script strict mode
 "use strict";
 
+// ! - Globals
+var taskList = new Array();
+var selectedTasks = new Set();
+var taskBeingEdited = null;
+var editTaskMode = null;
+
+// Frequently accessed elements
+const mainTasksContainer = document.getElementById('main-tasks-container');
+const completedTasksContainer = document.getElementById('completed-tasks-container');
+
 // Task class
 class Task {
 	static taskIdentifier = 1;
@@ -10,7 +20,8 @@ class Task {
 		this.title = title;
 		this.dueDate = dueDate;
 		this.color = color;
-		this.checkedOff = false;
+		this.isComplete = false;
+		this.isAnimating = false;
 		this.indent = indent;
 		this.identifier = Task.taskIdentifier;
 		Task.taskIdentifier++;
@@ -37,7 +48,7 @@ class Task {
 		checkboxInput.type = "checkbox";
 		checkboxInput.className = "form-check-input border border-primary"
 		checkboxInput.id = rowIdentifier+"_checkbox";
-		checkboxInput.checked = this.checkedOff;
+		checkboxInput.checked = this.isComplete;
 		checkboxFormDiv.appendChild(checkboxInput);
 		
 		// Title
@@ -77,9 +88,7 @@ class Task {
 		// Add event handlers for when task is checked off, show an animation and 
 		// move the task to the completed list if it was on the main list, or vice-versa.
 		checkboxInput.addEventListener('click', (event) => {
-			//console.log("Checkbox: "+event.target.checked);
-			this.checkedOff = event.target.checked;
-			this.checkedDidChange();
+			this.checkedDidChange(event.target.checked);
 		});
 
 		return rowDiv;
@@ -88,7 +97,8 @@ class Task {
 	// Returns the className for a row div associated with this task,
 	// which includes the background color for selection and color coding
 	rowClassName(selected) {
-		let result = "row my-1 ms-"+(3*this.indent+1)+" me-1 gx-0 rounded ";
+		let marginStart = 3 * (this.isComplete? 0 : this.indent) + 1;
+		let result = "row my-1 ms-"+marginStart+" me-1 gx-0 rounded ";
 		
 		if (this.color === "4") {
 			result = result+"bg-success-subtle "; // Green
@@ -130,9 +140,10 @@ class Task {
 	// Call this when a task's checked state is changed.
 	// This triggers an animation and then moves the task to the
 	// correct list for its state
-	checkedDidChange() {
+	checkedDidChange(newState) {
 		let finalDelay = 400; // ms
-		if (this.checkedOff) {
+		this.isAnimating = true;
+		if (newState) {
 			// Show animation crossing off the item
 			const titleSpan = document.getElementById("task_"+this.identifier+"_title");
 			
@@ -171,21 +182,15 @@ class Task {
 		
 		// Pause 0.5 seconds, then move task to other list
 		setTimeout(() => {
-			this.deleteFromAllLists();
-			if (this.checkedOff) {
-				completedTasks.splice(0, 0, this);
-			} else {
-				mainTasks.splice(0, 0, this);
-			}
-			updateAllTaskLists();
+			this.isAnimating = false;
+			this.isComplete = newState;
+			updateTaskContainers();
 		}, finalDelay);
 	}
 
 	// Delete a task from all lists
 	deleteFromAllLists() {
-		// Filter out task in each list
-		mainTasks = mainTasks.filter(x => (x !== this));
-		completedTasks = completedTasks.filter(x => (x !== this));
+		taskList = taskList.filter(x => (x !== this));
 	}
 	
 	// Increase or decrease the indentation level.
@@ -202,18 +207,6 @@ class Task {
 	}
 }
 
-// ! - Globals
-var mainTasks = new Array();
-var completedTasks = new Array();
-var deletedTasks = new Array();
-var selectedTasks = new Set();
-var taskBeingEdited = null;
-var editTaskMode = null;
-
-// Frequently accessed elements
-const mainTasksContainer = document.getElementById('main-tasks-container');
-const completedTasksContainer = document.getElementById('completed-tasks-container');
-
 /* ! - == Selection == */ 
 
 // Deselect all tasks
@@ -221,14 +214,8 @@ function deselect() {
 	selectedTasks.clear();
 }
 
-// Updates the selected state of all rows
-function updateSelection() {
-	updateSelectionWithContainer(mainTasks);
-	updateSelectionWithContainer(completedTasks);
-}
-
 // Updates the background color of rows to indicate selection state
-function updateSelectionWithContainer(taskList) {
+function updateSelection() {
 	// For each task in the list, find the matching row div and change the class name.
 	for (const task of taskList) {
 		let rowId = "task_"+task.identifier+"_row";
@@ -242,46 +229,66 @@ function updateSelectionWithContainer(taskList) {
 
 /* !- == Updating Rows == */
 
-function updateAllTaskLists() {
-	updateMainTaskList();
-	updateCompletedTaskList();
-	updateSelection();
+// Returns the main task list as an array
+function mainTasks() {
+	return taskList.filter(x => (!x.isComplete));
+	
+	let results = new Array();
+	for (const task of taskList) {
+		if (!task.isComplete) {
+			results.push(task);
+		}
+	}
+	return results;
 }
 
-function updateMainTaskList() {
-	// If there are no tasks in the main list, show the placeholder, otherwise show each task.
-	// Note: this will result in a visible flicker if updating the entire list, so try not to use it when inserting or removing just one element.
-	
-	// Remove any non-placeholder rows from main tasks container
-	removeNonPlaceholderRows(mainTasksContainer);
-	
+// Returns the completed task list as an array
+function completedTasks() {
+	let results = new Array();
+	for (const task of taskList) {
+		if (task.isComplete) {
+			results.push(task);
+		}
+	}
+	return results;
+}
+
+function updateTaskContainers() {
+	// HTML elements
+	const mainTasksContainer = document.getElementById('main-tasks-container');
+	const completedTasksContainer = document.getElementById('completed-tasks-container');
 	const mainTasksPlaceholder = document.getElementById('main-tasks-placeholder');
-	if (mainTasks.length == 0) {
+	const completedTasksPlaceholder = document.getElementById('completed-tasks-placeholder');
+
+	// Remove tasks
+	removeNonPlaceholderRows(mainTasksContainer);
+	removeNonPlaceholderRows(completedTasksContainer);
+
+	// Get both task lists
+	const mainTasksList = mainTasks();
+	const completedTasksList = completedTasks();
+	
+	// Populate main task list
+	if (mainTasksList.length == 0) {
 		mainTasksPlaceholder.hidden = false;
 	} else {
 		mainTasksPlaceholder.hidden = true;
-		let index = 0;
-		for (const task of mainTasks) {
+		for (const task of mainTasksList) {
 			mainTasksContainer.appendChild(task.rowDiv());
-			index++;
 		}
-	}
-}
+	}	
 
-function updateCompletedTaskList() {
-	removeNonPlaceholderRows(completedTasksContainer);
-	
-	const completedTasksPlaceholder = document.getElementById('completed-tasks-placeholder');
-	if (completedTasks.length == 0) {
+	// Populate completed task list
+	if (completedTasksList.length == 0) {
 		completedTasksPlaceholder.hidden = false;
 	} else {
 		completedTasksPlaceholder.hidden = true;
-		let index = 0;
-		for (const task of completedTasks) {
+		for (const task of completedTasksList) {
 			completedTasksContainer.appendChild(task.rowDiv());
-			index++;
 		}
-	}
+	}	
+
+	updateSelection();
 }
 
 function removeNonPlaceholderRows(container) {
@@ -388,7 +395,7 @@ function editTaskModalDelete() {
 	taskBeingEdited.deleteFromAllLists();
 	taskBeingEdited = null;
 	
-	updateAllTaskLists();
+	updateTaskContainers();
 }
 
 function editTaskModalOK() {
@@ -429,11 +436,11 @@ function editTaskModalOK() {
 	
 	// Insert the new task or subtask
 	if (editTaskMode === "newTask" || editTaskMode === "addSubtask") {
-		mainTasks.splice(insertionIndex, 0, task);
+		taskList.splice(insertionIndex, 0, task);
 	}
 
 	// Deselect and update
-	updateAllTaskLists();
+	updateTaskContainers();
 	
 	// Reset globals
 	taskBeingEdited = null;
@@ -532,15 +539,17 @@ function handleKeyDown(event) {
 				if (selectedTasks.size > 0) {
 					let changed = false;
 					let task = anySelectedTask();
-					if (event.shiftKey) {
-						// Remove indent
-						changed = task.shiftIndentation(-1);
-					} else {
-						// Add indent
-						changed = task.shiftIndentation(1);
-					}
-					if (changed) {
-						updateAllTaskLists();
+					if (!task.isComplete) {
+						if (event.shiftKey) {
+							// Remove indent
+							changed = task.shiftIndentation(-1);
+						} else {
+							// Add indent
+							changed = task.shiftIndentation(1);
+						}
+						if (changed) {
+							updateTaskContainers();
+						}
 					}
 				}
 				event.preventDefault();
@@ -575,18 +584,17 @@ function deleteSelectedTasks() {
 		task.deleteFromAllLists();
 	}
 	deselect();
-	updateMainTaskList();
-	updateCompletedTaskList();
+	updateTaskContainers();
 }
 
 /* !- Main script */
 
 // Assignment says to "Add a list of tasks", so this adds a list of sample tasks.
-mainTasks.push(new Task("Welcome to your to-do list!", null, null, 0));
-mainTasks.push(new Task("These are sample tasks to show you how this task list works", null, null, 1));
-mainTasks.push(new Task("Click on the checkbox next to a task to complete it", null, null, 0));
-mainTasks.push(new Task("Double click on the task to edit it", null, "4", 0));
-mainTasks.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3", 0));
-updateMainTaskList();
+taskList.push(new Task("Welcome to your to-do list!", null, null, 0));
+taskList.push(new Task("These are sample tasks to show you how this task list works", null, null, 1));
+taskList.push(new Task("Click on the checkbox next to a task to complete it", null, null, 0));
+taskList.push(new Task("Double click on the task to edit it", null, "4", 0));
+taskList.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3", 0));
+updateTaskContainers();
 
 // Check the Due Date radio group button for None
