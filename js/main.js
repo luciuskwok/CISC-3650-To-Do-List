@@ -6,6 +6,7 @@
 // ! - Globals
 var taskList = new Array();
 var selectedTasks = new Set();
+var undoStack = new Array();
 var taskBeingEdited = null;
 var editTaskMode = null;
 
@@ -208,9 +209,21 @@ class Task {
 		}
 	}
 
-	// Delete a task from all lists
-	deleteFromAllLists() {
-		taskList = taskList.filter(x => (x !== this));
+	// Delete a task from task list
+	// Also, pushes onto the undo stack
+	deleteFromTaskList() {
+		let index = taskList.findIndex( x => (x == this) );
+		let tasksToDelete = new Set();
+		if (index >= 0) {
+			tasksToDelete.add(taskList[index]);
+			index++;
+			while (index < taskList.length) {
+				if (taskList[index].indent == 0) break;
+				tasksToDelete.add(taskList[index]);
+				index++;
+			}
+		taskList = taskList.filter( x => (!tasksToDelete.has(x)) );
+		}
 	}
 	
 	// Increase or decrease the indentation level.
@@ -236,6 +249,10 @@ function deselect() {
 
 function addTaskToSelection(task) {
 	selectedTasks.add(task);
+}
+
+function anySelectedTask() {
+	return selectedTasks.values().next().value;
 }
 
 // Updates the background color of rows to indicate selection state
@@ -414,7 +431,7 @@ function editTaskModalDelete() {
 		return;
 	}
 
-	taskBeingEdited.deleteFromAllLists();
+	taskBeingEdited.deleteFromTaskList();
 	taskBeingEdited = null;
 	
 	updateTaskContainers();
@@ -611,14 +628,10 @@ function isElementVisible(elementId) {
 	return display != null && display !== "" &&display !== "none";
 }
 
-function anySelectedTask() {
-	return selectedTasks.values().next().value;
-}
-
 // Delete selected tasks
 function deleteSelectedTasks() {
 	for (const task of selectedTasks) {
-		task.deleteFromAllLists();
+		task.deleteFromTaskList();
 	}
 	deselect();
 	updateTaskContainers();
