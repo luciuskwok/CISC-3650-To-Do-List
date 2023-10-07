@@ -229,30 +229,6 @@ function updateSelection() {
 
 /* !- == Updating Rows == */
 
-// Returns the main task list as an array
-function mainTasks() {
-	return taskList.filter(x => (!x.isComplete));
-	
-	let results = new Array();
-	for (const task of taskList) {
-		if (!task.isComplete) {
-			results.push(task);
-		}
-	}
-	return results;
-}
-
-// Returns the completed task list as an array
-function completedTasks() {
-	let results = new Array();
-	for (const task of taskList) {
-		if (task.isComplete) {
-			results.push(task);
-		}
-	}
-	return results;
-}
-
 function updateTaskContainers() {
 	// HTML elements
 	const mainTasksContainer = document.getElementById('main-tasks-container');
@@ -265,8 +241,8 @@ function updateTaskContainers() {
 	removeNonPlaceholderRows(completedTasksContainer);
 
 	// Get both task lists
-	const mainTasksList = mainTasks();
-	const completedTasksList = completedTasks();
+	const mainTasksList = taskList.filter(x => (!x.isComplete));
+	const completedTasksList = taskList.filter(x => (x.isComplete));
 	
 	// Populate main task list
 	if (mainTasksList.length == 0) {
