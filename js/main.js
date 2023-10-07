@@ -210,8 +210,10 @@ class Task {
 	}
 
 	// Delete a task from task list
-	// Also, pushes onto the undo stack
 	deleteFromTaskList() {
+		// Push current task list onto undo stack
+		pushUndoStack();
+		
 		let index = taskList.findIndex( x => (x == this) );
 		let tasksToDelete = new Set();
 		if (index >= 0) {
@@ -239,6 +241,55 @@ class Task {
 		return false;
 	}
 }
+
+/* ! - == Undo Stack == */ 
+
+// Push the current task list onto the undo stack
+function pushUndoStack() {
+	// Make a shallow copy of the taskList.
+	// This means the undo stack only tracks when tasks are added or removed from the list,
+	// and edits in-place to existing tasks are not undoable.
+	const taskListCopy = [...taskList];
+	undoStack.push(taskListCopy);
+	updateUndoButton();
+}
+
+// Pop the last element in the undo stack, which restores the previous state of the taskList.
+function popUndoStack() {
+	if (!isUndoStackEmpty()) taskList = undoStack.pop();
+	updateUndoButton();
+}
+
+// Clear undo stack
+// Use this if an action would invalidate the undo stack, 
+// for example, editing an element in place.
+function clearUndoStack() {
+	undoStack.length = 0;
+	updateUndoButton();
+}
+
+function isUndoStackEmpty() {
+	return undoStack.length == 0;
+}
+
+function updateUndoButton() {
+	const undoButton = document.getElementById('undoButton');
+	if (isUndoStackEmpty()) {
+		undoButton.disabled = true;
+		undoButton.classList.remove('btn-outline-primary');
+		undoButton.classList.add('btn-outline-secondary');
+	} else {
+		undoButton.disabled = false;
+		undoButton.classList.remove('btn-outline-secondary');
+		undoButton.classList.add('btn-outline-primary');
+	}
+}
+
+/* ! Undo button click handler */
+document.getElementById('undoButton').addEventListener('click', (event) => {
+	popUndoStack();
+	updateTaskContainers();
+});
 
 /* ! - == Selection == */ 
 
@@ -327,15 +378,11 @@ function updateTaskContainers() {
 
 function removeNonPlaceholderRows(container) {
 	// Remove any non-placeholder rows from container
-	let childrenToRemove = new Array();
+	let toRemove = new Array();
 	for (const child of container.children) {
-		if (!child.id.endsWith("placeholder")) {
-			childrenToRemove.push(child);
-		}
+		if (!child.id.endsWith("placeholder")) toRemove.push(child);
 	}
-	for (const child of childrenToRemove) {
-		container.removeChild(child);
-	}
+	for (const child of toRemove) container.removeChild(child);
 }
 
 /* ! __ Button event listeners */
@@ -356,7 +403,7 @@ document.getElementById('addSubtaskButton').addEventListener('mousedown', (event
 	return false;
 });
 
-/* !- == Edit Task == */
+/* !- == Edit Task Modal == */
 
 // Show modal used for "New Task", "Add Subtask", and "Edit Task"
 // Pass in the task to edit when editing an existing task;
@@ -481,6 +528,10 @@ function editTaskModalOK() {
 	
 	// Insert the new task or subtask
 	if (editTaskMode === "newTask" || editTaskMode === "addSubtask") {
+		// Push current task list onto undo stack
+		pushUndoStack();
+
+		// Insert task at specified index
 		taskList.splice(insertionIndex, 0, task);
 	}
 
@@ -497,7 +548,7 @@ function editTaskModalOK() {
 	bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
 }
 
-/* ! __ Edit Task event listeners */
+/* ! __ Edit Task modal event listeners */
 
 // Edit Task: Date picker
 document.getElementById('editTaskDueDatePicker').addEventListener('change', event => {
@@ -630,11 +681,12 @@ function isElementVisible(elementId) {
 
 // Delete selected tasks
 function deleteSelectedTasks() {
-	for (const task of selectedTasks) {
+	const task = anySelectedTask();
+	if (task) {
 		task.deleteFromTaskList();
+		deselect();
+		updateTaskContainers();
 	}
-	deselect();
-	updateTaskContainers();
 }
 
 /* !- Main script */
