@@ -139,51 +139,73 @@ class Task {
 	// This triggers an animation and then moves the task to the
 	// correct list for its state
 	checkedDidChange(newState) {
-		let finalDelay = 400; // ms
-		this.isAnimating = true;
+		// Extend the final delay to show last frame of animation longer
+		let finalDelay = newState? 650:400; // ms
+		
 		if (newState) {
-			// Show animation crossing off the item
-			const titleSpan = document.getElementById("task_"+this.identifier+"_title");
+			this.animateCrossingOff();
 			
-			// Create an array of chars from the original text
-			let original = titleSpan.innerText.split('');
-			
-			// Create versions of string with different portion
-			let versions = new Array();
-			
-			const frames = 8;
-			for (let i=1; i<=frames; i++) {
-				let n = original.length * i / frames;
-				
-				let s = new Array();
-				for (let j=0; j<original.length; j++) {
-					s.push(original[j]);
-					if (j < n) {
-						s.push('\u0336');
+			// Also check off any subtasks
+			let index = taskList.findIndex( x => (x == this) );
+			if (index >= 0) {
+				index++;
+				while (index < taskList.length) {
+					let subtask = taskList[index];
+					if (subtask.indent > 0) {
+						const checkbox = document.getElementById("task_"+subtask.identifier+"_checkbox");
+						checkbox.checked = true;
+						subtask.checkedDidChange(true);
+						subtask.animateCrossingOff();
+					} else {
+						break;
 					}
+					index++;
 				}
-				versions.push(s.join(''));
 			}
-			
-			// Put up the first frame of the animation
-			titleSpan.innerText = versions[0];
-			
-			for (let i=1; i<frames; i++) {
-				setTimeout(() => {
-					titleSpan.innerText = versions[i];
-				}, 500*i/frames);
-			}
-			
-			// Extend the final delay to show last frame of animation longer
-			finalDelay = 650;
 		}
 		
-		// Pause 0.5 seconds, then move task to other list
+		// Pause, then move task to other list
 		setTimeout(() => {
 			this.isAnimating = false;
 			this.isComplete = newState;
 			updateTaskContainers();
 		}, finalDelay);
+	}
+	
+	animateCrossingOff() {
+		this.isAnimating = true;
+		
+		// Show animation crossing off the item
+		const titleSpan = document.getElementById("task_"+this.identifier+"_title");
+		
+		// Create an array of chars from the original text
+		let original = titleSpan.innerText.split('');
+		
+		// Create versions of string with different portion
+		let versions = new Array();
+		
+		const frames = 8;
+		for (let i=1; i<=frames; i++) {
+			let n = original.length * i / frames;
+			
+			let s = new Array();
+			for (let j=0; j<original.length; j++) {
+				s.push(original[j]);
+				if (j < n) {
+					s.push('\u0336');
+				}
+			}
+			versions.push(s.join(''));
+		}
+		
+		// Put up the first frame of the animation
+		titleSpan.innerText = versions[0];
+		
+		for (let i=1; i<frames; i++) {
+			setTimeout(() => {
+				titleSpan.innerText = versions[i];
+			}, 500*i/frames);
+		}
 	}
 
 	// Delete a task from all lists
