@@ -1,5 +1,5 @@
 # "Tasks" Website Project
-This is my project for my CISC 3650 Human-Computer Interface course. It is a simple tasks or "to do" list app. The main features are:
+This is my project for my CISC 3650 Human-Computer Interaction course. It is a simple tasks or "to do" list app. The main features are:
 
 - Created using HTML and Bootstrap 5.3
 - Add, check off, or delete tasks
