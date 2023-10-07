@@ -631,6 +631,7 @@ taskList.push(new Task("Welcome to your to-do list!", null, null, 0));
 taskList.push(new Task("These are sample tasks to show you how this task list works", null, null, 1));
 taskList.push(new Task("Click on the checkbox next to a task to complete it", null, null, 0));
 taskList.push(new Task("Double click on the task to edit it", null, "4", 0));
+taskList.push(new Task("Click on a task and press tab or shift-tab to change the indent", null, "4", 1));
 taskList.push(new Task("Press \"New Task\" to add your own tasks", "2023-10-15", "3", 0));
 updateTaskContainers();
 
