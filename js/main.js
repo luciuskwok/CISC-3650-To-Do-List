@@ -127,7 +127,7 @@ class Task {
 		// TODO: allow multiple selection with shift, ctrl, or command keys
 		//if (event.shiftKey) ...
 		deselect();
-		selectedTasks.add(this); // Select this element
+		addTaskToSelection(this);
 		updateSelection(); // Visually indicate selection
 		
 		// Prevent event propagation so that body event handler does not deselect rows.
@@ -232,6 +232,10 @@ class Task {
 // Deselect all tasks
 function deselect() {
 	selectedTasks.clear();
+}
+
+function addTaskToSelection(task) {
+	selectedTasks.add(task);
 }
 
 // Updates the background color of rows to indicate selection state
@@ -461,6 +465,7 @@ function editTaskModalOK() {
 
 	// Deselect and update
 	deselect();
+	addTaskToSelection(task);
 	updateTaskContainers();
 	
 	// Reset globals
