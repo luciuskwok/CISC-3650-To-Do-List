@@ -260,10 +260,10 @@ function updateSelection() {
 	if (enableAddSubtaskButton) {
 		addSubtaskButton.disabled = false;
 		addSubtaskButton.classList.remove('btn-outline-secondary');
-		addSubtaskButton.classList.add('btn-primary');
+		addSubtaskButton.classList.add('btn-outline-primary');
 	} else {
 		addSubtaskButton.disabled = true;
-		addSubtaskButton.classList.remove('btn-primary');
+		addSubtaskButton.classList.remove('btn-outline-primary');
 		addSubtaskButton.classList.add('btn-outline-secondary');
 	}
 }
