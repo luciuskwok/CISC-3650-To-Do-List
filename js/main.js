@@ -74,7 +74,8 @@ class Task {
 			
 		// Add event handler so that clicking on a row makes it selected
 		contentDiv.addEventListener('mousedown', (event) => {
-			this.mouseDown(event);
+			event.preventDefault();
+			return this.mouseDown(event);
 		});
 		
 		// Add event handler for double-click to edit task
@@ -126,15 +127,12 @@ class Task {
 		// TODO: allow multiple selection with shift, ctrl, or command keys
 		//if (event.shiftKey) ...
 		deselect();
-
-		// Select this element
-		selectedTasks.add(this);
-
-		// Visually indicate selection
-		updateSelection();
+		selectedTasks.add(this); // Select this element
+		updateSelection(); // Visually indicate selection
 		
 		// Prevent event propagation so that body event handler does not deselect rows.
 		event.stopPropagation();
+		return false;
 	}
 	
 	// Call this when a task's checked state is changed.
@@ -225,6 +223,23 @@ function updateSelection() {
 			div.className = task.rowClassName(taskIsSelected);
 		}
 	}
+	
+	// Update the state of the Add Subtask button
+	const addSubtaskButton = document.getElementById('addSubtaskButton');
+	const selectedTask = anySelectedTask();
+	let enableAddSubtaskButton = false;
+	if (selectedTask) {
+		enableAddSubtaskButton = !selectedTask.isComplete;
+	}
+	if (enableAddSubtaskButton) {
+		addSubtaskButton.disabled = false;
+		addSubtaskButton.classList.remove('btn-outline-secondary');
+		addSubtaskButton.classList.add('btn-primary');
+	} else {
+		addSubtaskButton.disabled = true;
+		addSubtaskButton.classList.remove('btn-primary');
+		addSubtaskButton.classList.add('btn-outline-secondary');
+	}
 }
 
 /* !- == Updating Rows == */
@@ -292,6 +307,11 @@ document.getElementById('addSubtaskButton').addEventListener('click', ({target})
 	showEditTaskModal(anySelectedTask(), true);
 });
 
+document.getElementById('addSubtaskButton').addEventListener('mousedown', (event) => {
+	event.stopPropagation();
+	event.preventDefault();
+	return false;
+});
 
 /* !- == Edit Task == */
 
@@ -309,7 +329,7 @@ function showEditTaskModal(task, isAddingSubtask) {
 	// Update globals
 	taskBeingEdited = task;
 	
-	if (task != null) {
+	if (task != null && !isAddingSubtask) {
 		editTaskMode = "editTask";
 		
 		// == Set up modal for Edit Task ==
@@ -385,9 +405,9 @@ function editTaskModalOK() {
 		if (editTaskMode === "addSubtask") {
 			task.indent = 1;
 			
-			// Find the index of the parent task
-			// TODO
-			insertionIndex = 1;
+			// Find the index of the last selected task, which will be the parent
+			const parentTask = taskBeingEdited;
+			insertionIndex = taskList.findIndex( x => (x == parentTask) ) + 1;
 		}
 	}
 	
@@ -416,6 +436,7 @@ function editTaskModalOK() {
 	}
 
 	// Deselect and update
+	deselect();
 	updateTaskContainers();
 	
 	// Reset globals
