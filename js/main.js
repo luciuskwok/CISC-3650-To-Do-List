@@ -430,6 +430,8 @@ function editTaskModalOK() {
 			// Find the index of the last selected task, which will be the parent
 			const parentTask = taskBeingEdited;
 			insertionIndex = taskList.findIndex( x => (x == parentTask) ) + 1;
+		} else {
+			task.indent = 0;
 		}
 	}
 	
