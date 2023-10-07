@@ -28,17 +28,17 @@ class Task {
 	}
 	
 	// Create a <div> for the task, to be inserted into the DOM
-	rowDiv() {
+	rowElement() {
 		const rowIdentifier = "task_"+this.identifier;
 		
 		// Add a new row for the task
-		const rowDiv = document.createElement("div");
-		rowDiv.className = this.rowClassName(false);
-		rowDiv.id = rowIdentifier+"_row";
+		const rowElement = document.createElement("li");
+		rowElement.className = this.rowClassName(false);
+		rowElement.id = rowIdentifier+"_row";
 		
 		const checkboxColDiv = document.createElement("div");
 		checkboxColDiv.className = "col-auto ms-2 me-0"; // bg-secondary
-		rowDiv.appendChild(checkboxColDiv);
+		rowElement.appendChild(checkboxColDiv);
 		
 		const checkboxFormDiv = document.createElement("div");
 		checkboxFormDiv.className = "form-check my-1 mx-1";
@@ -55,7 +55,7 @@ class Task {
 		const contentDiv = document.createElement("div");
 		contentDiv.className = "col mx-0 px-1 py-1 user-select-none";
 		contentDiv.id = rowIdentifier+"_content";
-		rowDiv.appendChild(contentDiv);
+		rowElement.appendChild(contentDiv);
 		
 		// Due Date
 		// Because of the float-end, put due date before title text
@@ -92,7 +92,7 @@ class Task {
 			this.checkedDidChange(event.target.checked);
 		});
 
-		return rowDiv;
+		return rowElement;
 	}
 
 	// Returns the className for a row div associated with this task,
@@ -291,7 +291,7 @@ function updateTaskContainers() {
 	} else {
 		mainTasksPlaceholder.hidden = true;
 		for (const task of mainTasksList) {
-			mainTasksContainer.appendChild(task.rowDiv());
+			mainTasksContainer.appendChild(task.rowElement());
 		}
 	}	
 
@@ -301,7 +301,7 @@ function updateTaskContainers() {
 	} else {
 		completedTasksPlaceholder.hidden = true;
 		for (const task of completedTasksList) {
-			completedTasksContainer.appendChild(task.rowDiv());
+			completedTasksContainer.appendChild(task.rowElement());
 		}
 	}	
 
