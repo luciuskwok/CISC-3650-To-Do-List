@@ -436,6 +436,10 @@ function editTaskModalOK() {
 			insertionIndex = taskList.findIndex( x => (x == parentTask) ) + 1;
 		} else {
 			task.indent = 0;
+			
+			// Switch to main Tasks list in tab view
+			const mainTabButton = document.getElementById('main-tab');
+			mainTabButton.click();
 		}
 	}
 	
@@ -452,7 +456,7 @@ function editTaskModalOK() {
 	}
 	
 	// Color
-	let selectedColor = document.querySelector("[name=editTaskColor]:checked").id;
+	const selectedColor = document.querySelector("[name=editTaskColor]:checked").id;
 	task.color = null;
 	if (selectedColor.length > 1) {
 		task.color = selectedColor.charAt(selectedColor.length-1);
