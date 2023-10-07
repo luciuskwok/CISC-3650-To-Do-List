@@ -546,36 +546,43 @@ document.addEventListener('mousedown', event => {
 
 function handleKeyDown(event) {
 	if (!modalIsOpen()) {
+		const selectedTask = anySelectedTask();
 		switch (event.key) {
+			case "A": case "a":
+				// Add subtask
+				if (selectedTask) {
+					showEditTaskModal(selectedTask, true);
+				}
+				event.preventDefault();
+				return false;
+			case "N": case "n":
+				// New Task
+				showEditTaskModal(null, false);
+				event.preventDefault();
+				return false;
 			case "Delete": case "Backspace":
 				// Delete Task
 				deleteSelectedTasks();
 				event.preventDefault();
 				return false;
-			case "N": case "n":
-				// New Task
-				showNewTaskModal();
-				event.preventDefault();
-				return false;
 			case "Return": case "Enter":
 				// Edit Task
-				if (selectedTasks.size > 0) {
-					showEditTaskModal(anySelectedTask(), false);
+				if (selectedTask) {
+					showEditTaskModal(selectedTask, false);
 				}
 				event.preventDefault();
 				return false;
 			case "Tab":
 				// Indent Task
-				if (selectedTasks.size > 0) {
+				if (selectedTask) {
 					let changed = false;
-					let task = anySelectedTask();
-					if (!task.isComplete) {
+					if (!selectedTask.isComplete) {
 						if (event.shiftKey) {
 							// Remove indent
-							changed = task.shiftIndentation(-1);
+							changed = selectedTask.shiftIndentation(-1);
 						} else {
 							// Add indent
-							changed = task.shiftIndentation(1);
+							changed = selectedTask.shiftIndentation(1);
 						}
 						if (changed) {
 							updateTaskContainers();
