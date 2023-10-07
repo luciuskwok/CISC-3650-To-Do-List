@@ -16,10 +16,10 @@
 <body class="bg-light">
 	<div class="container py-3" id="backgroundContainer">
 		<div class="row">
-			<div class="col-sm-3 p-1"><!-- Empty --></div>
+			<div class="col-sm-3 col-lg-2 p-1"><!-- Empty --></div>
 			
 			<!-- Tabs -->
-			<div class="col-sm-9 p-1 bg-light">
+			<div class="col-sm-9 col-lg-10 p-1 bg-light">
 				<ul class="nav nav-tabs" id="tasksTab" role="tablist">
 					<li class="nav-item" role="presentation">
 						<button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main-tab-pane" type="button" role="tab" aria-controls="main-tab-pane" aria-selected="true">Tasks</button>
@@ -32,13 +32,19 @@
 		</div>
 		<div class="row">
 			<!-- Buttons -->
-			<div class="col-sm-3 p-3">
-				<button type="button" class="btn btn-primary m-1 w-100" id="newTaskButton">New Task</button>
-				<button type="button" class="btn btn-outline-secondary m-1 w-100" id="addSubtaskButton" disabled>Add Subtask</button>
+			<div class="col-sm-3 col-lg-2 p-3">
+				<div class="row">
+					<div class="col col-sm-12">
+						<button type="button" class="btn btn-primary m-1 w-100" id="newTaskButton">New Task</button>
+					</div>
+					<div class="col col-sm-12">
+						<button type="button" class="btn btn-outline-secondary m-1 w-100" id="addSubtaskButton" disabled>Add Subtask</button>
+					</div>
+				</div>
 			</div>
 			
 			<!-- Task List -->
-			<div class="col-sm-9 p-1 bg-light" id="taskList">
+			<div class="col-sm-9 col-lg-10 p-1 bg-light" id="taskList">
 				
 				<!-- Tab content -->
 				<div class="tab-content">
