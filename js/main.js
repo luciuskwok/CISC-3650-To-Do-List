@@ -680,7 +680,7 @@ function modalIsOpen() {
 
 function isElementVisible(elementId) {
 	let display = document.getElementById(elementId).style.display;
-	return display != null && display !== "" &&display !== "none";
+	return display != null && display !== "" && display !== "none";
 }
 
 // Delete selected tasks
