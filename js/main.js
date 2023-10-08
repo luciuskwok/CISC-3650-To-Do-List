@@ -102,7 +102,11 @@ class Task {
 		let marginStart = 3 * (this.isComplete? 0 : this.indent) + 1;
 		let result = "row my-1 ms-"+marginStart+" me-1 gx-0 rounded ";
 		
-		if (this.color === "4") {
+		if (this.color === "6") {
+			result = result+"bg-primary-subtle "; // Blue
+		} else if (this.color === "5") {
+			result = result+"bg-info-subtle "; // Aqua
+		} else if (this.color === "4") {
 			result = result+"bg-success-subtle "; // Green
 		} else if (this.color === "3") {
 			result = result+"bg-warning-subtle"; // Yellow
